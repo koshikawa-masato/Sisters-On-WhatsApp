@@ -2,10 +2,16 @@
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables BEFORE importing config
+project_root = Path(__file__).parent.parent.parent
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
+
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
-from dotenv import load_dotenv
 import logging
 
 from ..config import Config
@@ -15,11 +21,6 @@ from ..characters.personality import CharacterPersonality
 from ..routing.topic_analyzer import TopicAnalyzer
 from ..session.manager import SessionManager
 from ..moderation.openai_moderator import OpenAIModerator
-
-# Load environment variables from project root
-project_root = Path(__file__).parent.parent.parent
-env_path = project_root / ".env"
-load_dotenv(dotenv_path=env_path)
 
 # Validate configuration
 Config.validate()
