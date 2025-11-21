@@ -128,6 +128,42 @@ class TopicAnalyzer:
             elif message.startswith("how") and any(w in message for w in ["should", "can i", "do i"]):
                 scores["kasho"] += 0.3
 
+    def _check_explicit_switch(self, message: str) -> str:
+        """
+        Check if user explicitly requests to talk to a specific character.
+
+        Args:
+            message: User's message
+
+        Returns:
+            Character name if explicit switch detected, None otherwise
+        """
+        message_lower = message.lower()
+
+        # Patterns for explicit character switching
+        switch_patterns = [
+            # "I want to talk to Botan"
+            r'\b(?:i )?(?:want to |wanna )?(?:talk|speak|chat) (?:to |with )?(\w+)',
+            # "Switch to Kasho"
+            r'\b(?:switch|change) (?:to )?(\w+)',
+            # "Can I talk to Yuri?"
+            r'\bcan i (?:talk|speak|chat) (?:to |with )?(\w+)',
+            # "Let me talk to Botan"
+            r'\blet me (?:talk|speak|chat) (?:to |with )?(\w+)',
+            # "I'd like to speak with Kasho"
+            r'\bi(?:\'d| would) like to (?:talk|speak|chat) (?:to |with )?(\w+)',
+        ]
+
+        for pattern in switch_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                character_name = match.group(1).lower()
+                # Check if it's a valid character name
+                if character_name in ["botan", "kasho", "yuri"]:
+                    return character_name
+
+        return None
+
     def select_character(
         self,
         message: str,
@@ -145,6 +181,14 @@ class TopicAnalyzer:
         Returns:
             Tuple of (selected_character, scores)
         """
+        # First, check for explicit character switching request
+        explicit_switch = self._check_explicit_switch(message)
+        if explicit_switch:
+            # User explicitly wants to talk to this character
+            scores = self.analyze(message)
+            return explicit_switch, scores
+
+        # Otherwise, analyze topics to determine character
         scores = self.analyze(message)
 
         # Find character with highest score

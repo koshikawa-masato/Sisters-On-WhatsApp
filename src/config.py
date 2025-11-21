@@ -24,6 +24,11 @@ class Config:
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
+    # Grok settings (for trend research & fact-checking)
+    XAI_API_KEY: Optional[str] = os.getenv("XAI_API_KEY")
+    GROK_MODEL: str = os.getenv("GROK_MODEL", "grok-4-fast")
+    GROK_ENABLED: bool = os.getenv("GROK_ENABLED", "true").lower() == "true"
+
     # Database settings
     POSTGRES_HOST: str = os.getenv("POSTGRES_HOST", "localhost")
     POSTGRES_PORT: int = int(os.getenv("POSTGRES_PORT", "5432"))
