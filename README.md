@@ -45,11 +45,11 @@ Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (
 
 **Test the Three Sisters on WhatsApp:**
 
-[![Chat on WhatsApp](https://img.shields.io/badge/Chat%20on-WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/14155238886?text=join%20industrial-fine)
+[![Chat on WhatsApp](https://img.shields.io/badge/Chat%20on-WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/14155238886?text=join%20situation-completely)
 
 **How to start:**
 1. Click the button above or send a WhatsApp message to: **+1 (415) 523-8886**
-2. Send the join code: `join industrial-fine`
+2. Send the join code: `join situation-completely`
 3. Start chatting! Try asking:
    - "Who knows a lot about streaming?" → **Botan** 🌸 will respond
    - "Can you help me with music production?" → **Kasho** 🎵 will respond
