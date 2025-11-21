@@ -20,7 +20,7 @@ class Config:
     # LLM settings
     PRIMARY_LLM: str = os.getenv("PRIMARY_LLM", "kimi")
     KIMI_API_KEY: Optional[str] = os.getenv("KIMI_API_KEY")
-    KIMI_MODEL: str = os.getenv("KIMI_MODEL", "moonshot-v1-8k")
+    KIMI_MODEL: str = os.getenv("KIMI_MODEL", "kimi-k2-turbo-preview")
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
     OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
