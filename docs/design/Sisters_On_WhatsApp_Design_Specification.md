@@ -117,10 +117,11 @@ User (WhatsApp)
 - **Fallback**: Botan handles general topics
 
 #### 4. Character LLM Engine
-- **Options**: OpenAI GPT-4o-mini, Claude Haiku, or Gemini Flash
+- **Primary**: Kimi (moonshot-v1-8k) - Long context, cost-effective
+- **Backup Options**: OpenAI GPT-4o-mini, Claude Haiku, Gemini Flash
 - **Character Prompts**: Adapted from LINE version
 - **Language**: English only
-- **Context**: Session history (30 messages)
+- **Context**: Session history (up to 100 messages with Kimi's long context)
 
 #### 5. Session Manager
 - **Storage**: PostgreSQL (existing infrastructure)
@@ -145,7 +146,7 @@ User (WhatsApp)
 3. ✅ **Character Backstories** - Adapted for international audience
 4. ✅ **Conversation Memory** - PostgreSQL session management
 5. ✅ **Trend Integration** - Daily trends from Grok (optional)
-6. ✅ **Multi-LLM Support** - OpenAI, Claude, Gemini
+6. ✅ **Multi-LLM Support** - Kimi (primary), OpenAI, Claude, Gemini (backup)
 
 ---
 
@@ -254,14 +255,23 @@ I can explain more!"
 - Cost: $1-3/month
 
 ### LLM API Costs
-- **GPT-4o-mini**: $0.00015/1K input, $0.0006/1K output
-- **Claude Haiku**: $0.00025/1K input, $0.00125/1K output
-- **Gemini Flash**: $0.000075/1K input, $0.0003/1K output
+- **Kimi (moonshot-v1-8k)**: ¥12/M input (~$1.65), ¥12/M output (~$1.65)
+- **Kimi (moonshot-v1-32k)**: ¥24/M input (~$3.30), ¥24/M output (~$3.30)
+- **Kimi (moonshot-v1-128k)**: ¥60/M input (~$8.25), ¥60/M output (~$8.25)
+- **GPT-4o-mini** (backup): $0.00015/1K input, $0.0006/1K output
+- **Claude Haiku** (backup): $0.00025/1K input, $0.00125/1K output
 
 **Estimated Monthly Cost** (1,000 messages):
 - Average: 500 input + 200 output tokens per message
-- GPT-4o-mini: ~$0.20/month
-- **Total: $1-5/month for small scale**
+- **Kimi (moonshot-v1-8k)**: ~$2.30/month (primary choice)
+- GPT-4o-mini (backup): ~$0.20/month
+- **Total: $2-5/month for small scale**
+
+**Why Kimi**:
+- ✅ Long context window (8K/32K/128K variants)
+- ✅ Competitive pricing
+- ✅ Strong English + Chinese support
+- ✅ Good for conversation history management
 
 ---
 
