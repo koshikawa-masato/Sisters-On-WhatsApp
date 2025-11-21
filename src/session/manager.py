@@ -2,6 +2,7 @@
 
 import os
 from typing import Optional, List, Dict
+from urllib.parse import quote_plus
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
@@ -25,7 +26,9 @@ class SessionManager:
             user = os.getenv("POSTGRES_USER", "postgres")
             password = os.getenv("POSTGRES_PASSWORD", "")
 
-            database_url = f"postgresql://{user}:{password}@{host}:{port}/{db}"
+            # URL-encode password to handle special characters (like !)
+            encoded_password = quote_plus(password) if password else ""
+            database_url = f"postgresql://{user}:{encoded_password}@{host}:{port}/{db}"
 
         self.engine = create_engine(database_url, pool_pre_ping=True)
         self.SessionLocal = sessionmaker(bind=self.engine)

@@ -65,8 +65,8 @@ class SimpleSession:
 llm_provider = LLMFactory.create_provider()
 character_loader = CharacterPersonality()
 topic_analyzer = TopicAnalyzer()
-# session_manager = SessionManager()  # Disabled for testing without PostgreSQL
-session_manager = SimpleSession()  # Use in-memory session for testing
+session_manager = SessionManager()  # PostgreSQL persistent sessions enabled
+# session_manager = SimpleSession()  # In-memory sessions (testing only)
 moderator = OpenAIModerator()
 
 # Character emoji icons
@@ -125,6 +125,23 @@ async def whatsapp_webhook(
         # Step 2: Get or create user session
         user_session = session_manager.get_or_create_session(phone_number)
         current_character = user_session.current_character
+
+        # Check if this is the first message (empty history)
+        history = session_manager.get_conversation_history(phone_number, limit=1)
+        is_first_message = len(history) == 0
+
+        if is_first_message:
+            # Send welcome message introducing all three sisters
+            welcome_message = (
+                "Hello! 👋 Welcome to Sisters-On-WhatsApp!\n\n"
+                "We're three AI sisters who can help you with different topics:\n\n"
+                "🌸 *Botan* - Social media & entertainment expert (streaming, content creation, pop culture)\n"
+                "🎵 *Kasho* - Music professional & life advisor (music production, career, relationships)\n"
+                "📚 *Yuri* - Book lover & creative thinker (literature, writing, philosophy)\n\n"
+                "Just ask your question, and the right sister will respond automatically! What would you like to know?"
+            )
+            twiml_response.message(welcome_message)
+            return Response(content=str(twiml_response), media_type="application/xml")
 
         # Step 3: Topic analysis & character routing
         selected_character, topic_scores = topic_analyzer.select_character(
