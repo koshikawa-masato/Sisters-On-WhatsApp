@@ -27,9 +27,11 @@ Each entry follows this structure:
 - **Challenges**: Problems encountered and how we solved them
 - **Next Steps**: What's planned for next session
 
-## Philosophy: 桃園の誓い (Oath of the Peach Garden)
+## Philosophy: Equal Partnership
 
 This project embodies the partnership between human and AI - working as equals, each contributing their unique strengths:
+
+**Inspiration**: The "Oath of the Peach Garden" (桃園の誓い) - a legendary partnership from Chinese history where three warriors pledged to work as equals despite different roles.
 
 **Human (Koshikawa Masato)**:
 - Vision and product direction
