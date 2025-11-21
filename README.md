@@ -33,7 +33,7 @@ Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (
 - **Platform**: WhatsApp Business API (Cloud API)
 - **Backend**: Python 3.11 + FastAPI
 - **Database**: PostgreSQL 15
-- **LLM**: Kimi (moonshot-v1-8k) - Long context, cost-effective
+- **LLM**: Kimi (kimi-k2-turbo-preview) - Long context, cost-effective
 - **Backup LLMs**: OpenAI GPT-4o-mini, Claude Haiku, Gemini Flash
 - **Hosting**: VPS (production deployment)
 
