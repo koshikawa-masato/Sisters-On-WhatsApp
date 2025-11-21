@@ -12,6 +12,10 @@ class TopicAnalyzer:
         # Streaming & content
         "stream", "streaming", "twitch", "youtube", "content", "creator",
         "video", "vtuber", "virtual", "avatar",
+        # Gaming (moved from Yuri)
+        "game", "games", "gaming", "video game", "gameplay", "gamer",
+        "esports", "fps", "moba", "rpg", "pokemon", "nintendo", "playstation",
+        "xbox", "switch", "pc gaming", "console", "multiplayer",
         # Social media
         "twitter", "instagram", "tiktok", "social media", "viral", "trending",
         "followers", "likes", "post", "feed",
@@ -51,9 +55,11 @@ class TopicAnalyzer:
         # Creative & subculture
         "creative", "imagination", "indie", "underground", "alternative",
         "art", "artistic", "experimental", "unique", "weird",
-        # Japanese subculture
+        # Story-focused games only (narrative/literary)
+        "visual novel", "interactive fiction", "narrative game",
+        "story-driven game", "adventure game",
+        # Japanese culture (non-gaming)
         "anime", "manga", "comic", "comics", "otaku", "cosplay",
-        "game", "games", "gaming", "video game", "rpg", "visual novel",
         "japanese culture", "japan", "japanese", "weeb"
     ]
 
@@ -107,17 +113,21 @@ class TopicAnalyzer:
     def _apply_bonuses(self, message: str, scores: Dict[str, float]) -> None:
         """Apply bonus scores for strong topic indicators."""
 
-        # Botan bonuses
+        # Botan bonuses (gaming & streaming)
         if any(word in message for word in ["vtuber", "streaming", "viral", "trending"]):
+            scores["botan"] += 0.5
+        if any(word in message for word in ["game", "gaming", "pokemon", "play"]):
             scores["botan"] += 0.5
 
         # Kasho bonuses
         if any(word in message for word in ["music", "advice", "help me", "what should i"]):
             scores["kasho"] += 0.5
 
-        # Yuri bonuses
-        if any(word in message for word in ["book", "philosophy", "why", "meaning", "anime", "manga", "comic", "game"]):
+        # Yuri bonuses (literature & philosophy only)
+        if any(word in message for word in ["book", "philosophy", "why", "meaning"]):
             scores["yuri"] += 0.5
+        if any(word in message for word in ["anime", "manga", "comic"]):
+            scores["yuri"] += 0.3  # Reduced from 0.5 (shared with Botan)
 
         # Question patterns
         if message.startswith(("what", "how", "why", "when", "where")):
@@ -139,6 +149,18 @@ class TopicAnalyzer:
             Character name if explicit switch detected, None otherwise
         """
         message_lower = message.lower()
+
+        # Direct addressing patterns (highest priority)
+        # "Botan, what do you think..." or "Hey Botan, ..."
+        direct_address_patterns = [
+            r'^(?:hey |hi )?(botan|kasho|yuri)[,:]',  # "Botan, ..." or "Hey Botan, ..."
+            r'^(botan|kasho|yuri)\s',  # "Botan what..." (space after name)
+        ]
+
+        for pattern in direct_address_patterns:
+            match = re.search(pattern, message_lower)
+            if match:
+                return match.group(1).lower()
 
         # Patterns for explicit character switching
         switch_patterns = [
