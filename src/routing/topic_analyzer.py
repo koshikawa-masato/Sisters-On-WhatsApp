@@ -50,7 +50,11 @@ class TopicAnalyzer:
         "think", "thought", "idea", "concept", "theory",
         # Creative & subculture
         "creative", "imagination", "indie", "underground", "alternative",
-        "art", "artistic", "experimental", "unique", "weird"
+        "art", "artistic", "experimental", "unique", "weird",
+        # Japanese subculture
+        "anime", "manga", "comic", "comics", "otaku", "cosplay",
+        "game", "games", "gaming", "video game", "rpg", "visual novel",
+        "japanese culture", "japan", "japanese", "weeb"
     ]
 
     def __init__(self):
@@ -112,7 +116,7 @@ class TopicAnalyzer:
             scores["kasho"] += 0.5
 
         # Yuri bonuses
-        if any(word in message for word in ["book", "philosophy", "why", "meaning"]):
+        if any(word in message for word in ["book", "philosophy", "why", "meaning", "anime", "manga", "comic", "game"]):
             scores["yuri"] += 0.5
 
         # Question patterns

@@ -1,6 +1,7 @@
 """FastAPI webhook server for WhatsApp (Twilio)."""
 
 import os
+from pathlib import Path
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import Response
 from twilio.twiml.messaging_response import MessagingResponse
@@ -15,8 +16,10 @@ from ..routing.topic_analyzer import TopicAnalyzer
 from ..session.manager import SessionManager
 from ..moderation.openai_moderator import OpenAIModerator
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from project root
+project_root = Path(__file__).parent.parent.parent
+env_path = project_root / ".env"
+load_dotenv(dotenv_path=env_path)
 
 # Validate configuration
 Config.validate()
@@ -31,12 +34,46 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(title="Sisters-On-WhatsApp", version="1.0.0")
 
+# Simple in-memory session for testing without database
+class SimpleSession:
+    def __init__(self):
+        self.sessions = {}  # phone_number -> {"current_character": str, "history": []}
+
+    def get_or_create_session(self, phone_number):
+        if phone_number not in self.sessions:
+            self.sessions[phone_number] = type('Session', (), {
+                'current_character': 'botan',
+                'history': []
+            })()
+        return self.sessions[phone_number]
+
+    def update_character(self, phone_number, character):
+        if phone_number in self.sessions:
+            self.sessions[phone_number].current_character = character
+
+    def get_conversation_history(self, phone_number, limit=10, character=None):
+        if phone_number in self.sessions:
+            return self.sessions[phone_number].history[-limit:]
+        return []
+
+    def add_message(self, phone_number, character, role, content):
+        if phone_number in self.sessions:
+            self.sessions[phone_number].history.append({"role": role, "content": content})
+
 # Initialize components
 llm_provider = LLMFactory.create_provider()
 character_loader = CharacterPersonality()
 topic_analyzer = TopicAnalyzer()
-session_manager = SessionManager()
+# session_manager = SessionManager()  # Disabled for testing without PostgreSQL
+session_manager = SimpleSession()  # Use in-memory session for testing
 moderator = OpenAIModerator()
+
+# Character emoji icons
+CHARACTER_EMOJIS = {
+    'botan': '🌸',
+    'kasho': '🎵',
+    'yuri': '📚'
+}
 
 logger.info(f"LLM Provider: {llm_provider.get_provider_name()}")
 
@@ -138,8 +175,10 @@ async def whatsapp_webhook(
         session_manager.add_message(phone_number, selected_character, "user", Body)
         session_manager.add_message(phone_number, selected_character, "assistant", response_text)
 
-        # Step 10: Send response via Twilio
-        twiml_response.message(response_text)
+        # Step 10: Send response via Twilio (with character name and emoji)
+        character_emoji = CHARACTER_EMOJIS.get(selected_character, '')
+        formatted_response = f"*{selected_character.capitalize()}{character_emoji}*: {response_text}"
+        twiml_response.message(formatted_response)
 
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}", exc_info=True)
