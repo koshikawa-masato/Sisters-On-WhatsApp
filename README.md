@@ -6,7 +6,11 @@
 
 Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (sisters) who automatically respond based on conversation topics. Built for WhatsApp Business API and targeting global English-speaking markets.
 
-**🎬 Live Demo:** [Watch on YouTube Shorts](https://youtube.com/shorts/OSuatRt_Gyo)
+**🎬 Live Demo:**
+
+[![Watch Demo](https://img.youtube.com/vi/OSuatRt_Gyo/maxresdefault.jpg)](https://youtube.com/shorts/OSuatRt_Gyo)
+
+*Click to watch the Three Sisters in action!*
 
 ## The Three Sisters
 
