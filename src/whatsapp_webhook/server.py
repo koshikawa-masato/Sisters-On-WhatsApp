@@ -180,14 +180,35 @@ async def whatsapp_webhook(
         # Add current user message
         messages.append(Message(role="user", content=Body))
 
-        # Step 8: Generate response
-        response_text = await llm_provider.generate(
-            messages,
-            temperature=Config.LLM_TEMPERATURE,
-            max_tokens=Config.LLM_MAX_TOKENS
-        )
+        # Step 8: Generate response (with automatic failover)
+        try:
+            response_text = await llm_provider.generate(
+                messages,
+                temperature=Config.LLM_TEMPERATURE,
+                max_tokens=Config.LLM_MAX_TOKENS
+            )
+            logger.info(f"Generated response ({selected_character}): {response_text[:100]}...")
+        except Exception as primary_error:
+            # Primary LLM failed, try failover to secondary LLM
+            logger.warning(f"Primary LLM ({Config.PRIMARY_LLM}) failed: {str(primary_error)}")
 
-        logger.info(f"Generated response ({selected_character}): {response_text[:100]}...")
+            # Determine failover LLM (opposite of primary)
+            failover_llm = "openai" if Config.PRIMARY_LLM == "kimi" else "kimi"
+            logger.info(f"Attempting failover to {failover_llm}...")
+
+            try:
+                # Create failover provider
+                failover_provider = LLMFactory.create_provider(provider_type=failover_llm)
+                response_text = await failover_provider.generate(
+                    messages,
+                    temperature=Config.LLM_TEMPERATURE,
+                    max_tokens=Config.LLM_MAX_TOKENS
+                )
+                logger.info(f"✅ Failover successful! Generated response with {failover_llm}: {response_text[:100]}...")
+            except Exception as failover_error:
+                # Both LLMs failed
+                logger.error(f"❌ Failover to {failover_llm} also failed: {str(failover_error)}")
+                raise Exception(f"All LLM providers failed. Primary: {str(primary_error)}, Failover: {str(failover_error)}")
 
         # Step 9: Save conversation to history
         session_manager.add_message(phone_number, selected_character, "user", Body)

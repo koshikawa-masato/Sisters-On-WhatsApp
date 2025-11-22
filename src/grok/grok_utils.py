@@ -64,8 +64,11 @@ def ask_grok(
 
     url = "https://api.x.ai/v1/chat/completions"
 
-    # Use model from parameter or environment (default: grok-4-fast-reasoning)
-    model_name = model or os.getenv("GROK_MODEL", "grok-4-fast-reasoning")
+    # Use model from parameter or environment
+    model_name = model or os.getenv("GROK_MODEL")
+    if not model_name:
+        logger.error("❌ GROK_MODEL not set in environment")
+        return None
 
     # Load system prompt from file (Rule #1: NO HARDCODED PROMPTS)
     system_prompt = _load_prompt("search_system_prompt.txt")
@@ -141,7 +144,10 @@ def ask_grok_no_search(question: str, model: str = None, temperature: float = 0.
         return None
 
     url = "https://api.x.ai/v1/chat/completions"
-    model_name = model or os.getenv("GROK_MODEL", "grok-4-fast-reasoning")
+    model_name = model or os.getenv("GROK_MODEL")
+    if not model_name:
+        logger.error("❌ GROK_MODEL not set in environment")
+        return None
 
     # Load system prompt from file (Rule #1: NO HARDCODED PROMPTS)
     system_prompt = _load_prompt("fact_check_system_prompt.txt")

@@ -18,15 +18,15 @@ class Config:
     TWILIO_WHATSAPP_NUMBER: str = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
 
     # LLM settings
-    PRIMARY_LLM: str = os.getenv("PRIMARY_LLM", "kimi")
+    PRIMARY_LLM: Optional[str] = os.getenv("PRIMARY_LLM")
     KIMI_API_KEY: Optional[str] = os.getenv("KIMI_API_KEY")
-    KIMI_MODEL: str = os.getenv("KIMI_MODEL", "kimi-k2-turbo-preview")
+    KIMI_MODEL: Optional[str] = os.getenv("KIMI_MODEL")
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
-    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+    OPENAI_MODEL: Optional[str] = os.getenv("OPENAI_MODEL")
 
     # Grok settings (for trend research & fact-checking)
     XAI_API_KEY: Optional[str] = os.getenv("XAI_API_KEY")
-    GROK_MODEL: str = os.getenv("GROK_MODEL", "grok-4-fast")
+    GROK_MODEL: Optional[str] = os.getenv("GROK_MODEL")
     GROK_ENABLED: bool = os.getenv("GROK_ENABLED", "true").lower() == "true"
 
     # Database settings
@@ -37,7 +37,9 @@ class Config:
     POSTGRES_PASSWORD: str = os.getenv("POSTGRES_PASSWORD", "")
 
     # Character routing settings
-    CHARACTER_SWITCH_THRESHOLD: float = float(os.getenv("CHARACTER_SWITCH_THRESHOLD", "0.3"))
+    # Higher threshold = harder to switch characters (better continuity)
+    # 0.4 = good balance between continuity and topic switching
+    CHARACTER_SWITCH_THRESHOLD: float = float(os.getenv("CHARACTER_SWITCH_THRESHOLD", "0.4"))
     CONVERSATION_HISTORY_LIMIT: int = int(os.getenv("CONVERSATION_HISTORY_LIMIT", "10"))
 
     # LLM generation settings
@@ -72,9 +74,23 @@ class Config:
         """Validate required configuration."""
         required = []
 
-        if not cls.KIMI_API_KEY and not cls.OPENAI_API_KEY:
-            required.append("At least one LLM API key (KIMI_API_KEY or OPENAI_API_KEY)")
+        # Check PRIMARY_LLM
+        if not cls.PRIMARY_LLM:
+            required.append("PRIMARY_LLM (must be 'kimi' or 'openai')")
 
+        # Check LLM-specific requirements
+        if cls.PRIMARY_LLM == "kimi":
+            if not cls.KIMI_API_KEY:
+                required.append("KIMI_API_KEY (required when PRIMARY_LLM=kimi)")
+            if not cls.KIMI_MODEL:
+                required.append("KIMI_MODEL (required when PRIMARY_LLM=kimi)")
+        elif cls.PRIMARY_LLM == "openai":
+            if not cls.OPENAI_API_KEY:
+                required.append("OPENAI_API_KEY (required when PRIMARY_LLM=openai)")
+            if not cls.OPENAI_MODEL:
+                required.append("OPENAI_MODEL (required when PRIMARY_LLM=openai)")
+
+        # OpenAI always required for content moderation
         if not cls.OPENAI_API_KEY:
             required.append("OPENAI_API_KEY (required for content moderation)")
 

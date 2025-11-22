@@ -8,9 +8,9 @@ from .base import LLMProvider, Message
 class KimiProvider(LLMProvider):
     """Kimi (Moonshot AI) implementation."""
 
-    API_BASE_URL = "https://api.moonshot.cn/v1"
+    API_BASE_URL = "https://api.moonshot.ai/v1"
 
-    def __init__(self, api_key: str, model: str = "moonshot-v1-8k"):
+    def __init__(self, api_key: str, model: str):
         super().__init__(api_key, model)
 
     async def generate(

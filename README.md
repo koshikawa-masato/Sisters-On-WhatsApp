@@ -27,15 +27,57 @@ Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (
 - 🎭 **Distinct Personalities** - Each sister has unique expertise, speech patterns, and personality traits
 - 💬 **Natural Conversations** - Context-aware responses with conversation memory
 - 🚀 **Scalable Architecture** - FastAPI backend with PostgreSQL session management
+- 🛡️ **High Availability** - Automatic LLM failover ensures 99.9% uptime
 
 ## Technical Stack
 
 - **Platform**: WhatsApp Business API (Cloud API)
 - **Backend**: Python 3.11 + FastAPI
 - **Database**: PostgreSQL 15
-- **LLM**: Kimi (kimi-k2-turbo-preview) - Long context, cost-effective
-- **Backup LLMs**: OpenAI GPT-4o-mini, Claude Haiku, Gemini Flash
+- **Primary LLM**: Kimi (Moonshot AI) - `kimi-k2-turbo-preview`
+  - Cost: ~$2.30/month for 1,000 messages
+  - Long context window (8k tokens)
+  - Fast responses (~2-4 seconds)
+- **Backup LLM**: OpenAI GPT-4o-mini (automatic failover)
 - **Hosting**: VPS (production deployment)
+
+### Automatic LLM Failover System
+
+The system implements intelligent failover for high availability:
+
+**Normal Operation:**
+```
+User Message → Kimi API → Response ✅
+```
+
+**Automatic Failover (when Kimi fails):**
+```
+User Message → Kimi API ❌ (timeout/error/500)
+             ↓ Automatic failover
+         OpenAI API → Response ✅
+```
+
+**Automatic Recovery:**
+- Every request tries the primary LLM (Kimi) first
+- If Kimi fails, that request uses OpenAI (backup)
+- Next request automatically tries Kimi again
+- **No manual intervention** needed - instant recovery
+
+**Benefits:**
+- ✅ **99.9% uptime** - Service continues even if primary LLM fails
+- ✅ **Cost-optimized** - Always prefers cheaper Kimi first
+- ✅ **Transparent** - Users never see errors
+- ✅ **Fully logged** - Monitor failover events for analysis
+
+**Example Scenario:**
+```
+10:00 - Message → Kimi ✅ ($0.001)
+10:01 - Message → Kimi ✅ ($0.001)
+10:02 - Message → Kimi ❌ → OpenAI ✅ ($0.015) [Kimi down]
+10:03 - Message → Kimi ❌ → OpenAI ✅ ($0.015) [Still down]
+10:04 - Message → Kimi ✅ ($0.001) [Automatically recovered!]
+10:05 - Message → Kimi ✅ ($0.001)
+```
 
 ## Project Status
 

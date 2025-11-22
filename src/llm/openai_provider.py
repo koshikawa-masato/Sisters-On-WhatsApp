@@ -8,7 +8,7 @@ from .base import LLMProvider, Message
 class OpenAIProvider(LLMProvider):
     """OpenAI GPT implementation."""
 
-    def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
+    def __init__(self, api_key: str, model: str):
         super().__init__(api_key, model)
         self.client = AsyncOpenAI(api_key=api_key)
 
