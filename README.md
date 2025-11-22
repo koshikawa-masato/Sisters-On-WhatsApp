@@ -81,9 +81,13 @@ User Message → Kimi API ❌ (timeout/error/500)
 
 ## Project Status
 
-✅ **Alpha Testing** - WhatsApp bot is live and functional!
+🚀 **Production-Ready** - System fully functional with automatic LLM failover and high availability
 
-## Try It Now
+**Current Phase:**
+- ✅ **Alpha Testing** - Twilio Sandbox (temporary test environment)
+- 🔄 **Production Pending** - WhatsApp Business API registration in progress
+
+## Try It Now (Alpha Version)
 
 **Test the Three Sisters on WhatsApp:**
 
@@ -97,7 +101,10 @@ User Message → Kimi API ❌ (timeout/error/500)
    - "Can you help me with music production?" → **Kasho** 🎵 will respond
    - "What's a good sci-fi book?" → **Yuri** 📚 will respond
 
-**Note**: This is a Twilio Sandbox for testing. The bot automatically selects which sister responds based on your topic!
+**⚠️ Alpha Testing Notice:**
+This uses Twilio Sandbox (shared test number) for development and testing. The system is production-ready and will be deployed to a dedicated WhatsApp Business number after Meta business verification completes (2-4 weeks).
+
+For production deployment details, see [Production Deployment Guide](docs/Production_Deployment_Guide.md).
 
 ## Documentation
 
