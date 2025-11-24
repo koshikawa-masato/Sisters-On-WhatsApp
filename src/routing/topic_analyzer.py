@@ -25,7 +25,18 @@ class TopicAnalyzer:
         # Pop culture
         "meme", "trend", "popular", "culture", "fashion", "style",
         # Events & social
-        "party", "event", "meet", "hangout", "friend", "social"
+        "party", "event", "meet", "hangout", "friend", "social",
+        # Japanese pop culture
+        "anime", "アニメ", "動漫", "manga", "マンガ", "漫画",
+        "matsuri", "祭り", "festival", "hanami", "花見",
+        "fireworks", "花火", "hanabi",
+        "akihabara", "秋葉原", "otaku", "オタク",
+        "ramen", "ラーメン", "takoyaki", "たこ焼き",
+        "konbini", "コンビニ", "convenience store",
+        "izakaya", "居酒屋",
+        "harajuku", "原宿", "shibuya", "渋谷",
+        "street fashion", "ストリートファッション",
+        "cosplay", "コスプレ"
     ]
 
     KASHO_KEYWORDS = [
@@ -39,7 +50,17 @@ class TopicAnalyzer:
         "love", "dating", "breakup", "friend", "family",
         # Life planning
         "goal", "plan", "future", "grow", "improve", "develop",
-        "success", "balance", "stress", "worry", "concern"
+        "success", "balance", "stress", "worry", "concern",
+        # Japanese traditional culture & arts
+        "tea ceremony", "tea", "茶道", "sadō", "chadō", "sado", "chado",
+        "ikebana", "flower arrangement", "華道", "kadō", "kado",
+        "calligraphy", "書道", "shodō", "shodo",
+        "kimono", "yukata", "着物", "浴衣",
+        "kaiseki", "懐石", "traditional cuisine", "japanese cuisine",
+        "sake", "日本酒", "japanese sake", "rice wine",
+        "wagashi", "和菓子", "traditional sweets", "japanese sweets",
+        "traditional music", "shamisen", "三味線", "koto", "琴", "taiko", "太鼓", "gagaku", "雅楽",
+        "pottery", "陶器", "lacquerware", "漆器", "textile arts", "crafts", "工芸"
     ]
 
     YURI_KEYWORDS = [
@@ -60,7 +81,18 @@ class TopicAnalyzer:
         "story-driven game", "adventure game",
         # Japanese culture (non-gaming)
         "anime", "manga", "comic", "comics", "otaku", "cosplay",
-        "japanese culture", "japan", "japanese", "weeb"
+        "japanese culture", "japan", "japanese", "weeb",
+        # Japanese literature & spiritual culture
+        "haiku", "俳句", "tanka", "短歌", "waka", "和歌",
+        "tale of genji", "genji monogatari", "源氏物語", "genji",
+        "heike monogatari", "平家物語", "heike",
+        "murakami", "mishima", "kawabata", "yoshimoto",
+        "temple", "shrine", "寺", "神社", "shinto", "神道",
+        "buddhism", "仏教", "zen", "禅", "zazen", "座禅",
+        "samurai", "侍", "bushido", "武士道", "warrior", "shogun", "将軍",
+        "japanese history", "歴史", "feudal japan", "edo period", "江戸",
+        "garden", "庭園", "japanese garden", "zen garden", "枯山水",
+        "visual novel", "ビジュアルノベル", "vn"
     ]
 
     def __init__(self):
@@ -113,21 +145,37 @@ class TopicAnalyzer:
     def _apply_bonuses(self, message: str, scores: Dict[str, float]) -> None:
         """Apply bonus scores for strong topic indicators."""
 
-        # Botan bonuses (gaming & streaming)
+        # Botan bonuses (gaming & streaming & pop culture)
         if any(word in message for word in ["vtuber", "streaming", "viral", "trending"]):
             scores["botan"] += 0.5
         if any(word in message for word in ["game", "gaming", "pokemon", "play"]):
             scores["botan"] += 0.5
+        if any(word in message for word in ["anime", "アニメ", "動漫", "matsuri", "祭り", "ramen"]):
+            scores["botan"] += 0.3
 
-        # Kasho bonuses
+        # Kasho bonuses (music & traditional culture)
         if any(word in message for word in ["music", "advice", "help me", "what should i"]):
             scores["kasho"] += 0.5
+        if any(word in message for word in ["茶道", "tea ceremony", "sadō", "sado", "chadō", "chado"]):
+            scores["kasho"] += 0.6  # Strong bonus for tea ceremony
+        if any(word in message for word in ["kimono", "著物", "yukata", "浴衣"]):
+            scores["kasho"] += 0.6  # Strong bonus for traditional clothing
+        if any(word in message for word in ["ikebana", "華道", "calligraphy", "書道"]):
+            scores["kasho"] += 0.6  # Strong bonus for traditional arts
+        if any(word in message for word in ["kaiseki", "懐石", "wagashi", "和菓子"]):
+            scores["kasho"] += 0.6  # Strong bonus for traditional cuisine
 
-        # Yuri bonuses (literature & philosophy only)
+        # Yuri bonuses (literature & philosophy & spiritual)
         if any(word in message for word in ["book", "philosophy", "why", "meaning"]):
             scores["yuri"] += 0.5
-        if any(word in message for word in ["anime", "manga", "comic"]):
-            scores["yuri"] += 0.3  # Reduced from 0.5 (shared with Botan)
+        if any(word in message for word in ["temple", "寺", "shrine", "神社"]):
+            scores["yuri"] += 0.6  # Strong bonus for religious sites
+        if any(word in message for word in ["zen", "禅", "buddhism", "仏教", "shinto", "神道"]):
+            scores["yuri"] += 0.6  # Strong bonus for spiritual philosophy
+        if any(word in message for word in ["haiku", "俳句", "tanka", "短歌"]):
+            scores["yuri"] += 0.6  # Strong bonus for poetry
+        if any(word in message for word in ["samurai", "侍", "bushido", "武士道", "shogun", "将軍"]):
+            scores["yuri"] += 0.6  # Strong bonus for historical topics
 
         # Question patterns
         if message.startswith(("what", "how", "why", "when", "where")):
