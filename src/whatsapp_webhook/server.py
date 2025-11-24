@@ -22,6 +22,8 @@ from ..routing.topic_analyzer import TopicAnalyzer
 from ..session.manager import SessionManager
 from ..moderation.openai_moderator import OpenAIModerator
 from ..utils.language_detector import detect_language, get_language_instruction
+from ..utils.admin_notifier import AdminNotifier
+from ..memory.conversation_learner import ConversationLearner
 
 # Validate configuration
 Config.validate()
@@ -69,6 +71,8 @@ topic_analyzer = TopicAnalyzer()
 session_manager = SessionManager()  # PostgreSQL persistent sessions enabled
 # session_manager = SimpleSession()  # In-memory sessions (testing only)
 moderator = OpenAIModerator()
+conversation_learner = ConversationLearner()
+admin_notifier = AdminNotifier()
 
 # Character emoji icons
 CHARACTER_EMOJIS = {
@@ -142,6 +146,10 @@ async def whatsapp_webhook(
                 "Just ask your question, and the right sister will respond automatically! What would you like to know?"
             )
             twiml_response.message(welcome_message)
+
+            # Notify admin about new user
+            admin_notifier.send_new_user_notification(phone_number, Body)
+
             return Response(content=str(twiml_response), media_type="application/xml")
 
         # Step 3: Topic analysis & character routing
@@ -166,8 +174,8 @@ async def whatsapp_webhook(
         language_instruction = get_language_instruction(language)
         logger.info(f"Detected language: {language}")
 
-        # Step 6: Load character personality with language instruction
-        system_prompt = character_loader.get_system_prompt(selected_character)
+        # Step 6: Load character personality with language instruction and verified knowledge
+        system_prompt = character_loader.get_system_prompt(selected_character, user_message=Body)
         system_prompt += language_instruction
 
         # Step 7: Get conversation history
@@ -220,6 +228,29 @@ async def whatsapp_webhook(
         # Step 9: Save conversation to history
         session_manager.add_message(phone_number, selected_character, "user", Body)
         session_manager.add_message(phone_number, selected_character, "assistant", response_text)
+
+        # Step 9.5: Check if user is providing a correction (learning from conversation)
+        conversation_context = "\n".join([f"{msg['role']}: {msg['content']}" for msg in history[-3:]])
+        correction_detected = conversation_learner.process_message(
+            user_message=Body,
+            phone_number=phone_number,
+            conversation_context=conversation_context
+        )
+
+        if correction_detected:
+            logger.info(
+                f"✅ User correction detected: {correction_detected['extracted_fact']} "
+                f"(confidence: {correction_detected['confidence']:.0%})"
+            )
+
+            # Notify admin about detected correction
+            admin_notifier.send_correction_notification(
+                user_phone=phone_number,
+                extracted_fact=correction_detected['extracted_fact'],
+                category=correction_detected['category'],
+                confidence=correction_detected['confidence'],
+                original_message=Body
+            )
 
         # Step 10: Send response via Twilio (with character name and emoji)
         character_emoji = CHARACTER_EMOJIS.get(selected_character, '')

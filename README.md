@@ -180,6 +180,17 @@ Private project - All rights reserved
 - Working with Claude Code (Kuroko) in equal partnership
 - Building innovative AI × Character × Messaging products
 
+## Contact
+
+💬 **Try the Sisters on WhatsApp!**
+
+Want to experience the three sisters yourself? Feel free to reach out:
+
+**WhatsApp**: [+81 80-5546-0377](https://wa.me/818055460377)
+
+Chat with Botan, Kasho, and Yuri in English or Chinese!
+Share your thoughts, report issues, or just say hello. 🌸🎵📚
+
 ---
 
 🤖 **Generated with Claude Code (Kuroko)**

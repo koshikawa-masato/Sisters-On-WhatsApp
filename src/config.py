@@ -17,6 +17,10 @@ class Config:
     TWILIO_AUTH_TOKEN: Optional[str] = os.getenv("TWILIO_AUTH_TOKEN")
     TWILIO_WHATSAPP_NUMBER: str = os.getenv("TWILIO_WHATSAPP_NUMBER", "whatsapp:+14155238886")
 
+    # Admin notifications
+    ADMIN_PHONE_NUMBER: Optional[str] = os.getenv("ADMIN_PHONE_NUMBER")
+    ENABLE_ADMIN_NOTIFICATIONS: bool = os.getenv("ENABLE_ADMIN_NOTIFICATIONS", "true").lower() == "true"
+
     # LLM settings
     PRIMARY_LLM: Optional[str] = os.getenv("PRIMARY_LLM")
     KIMI_API_KEY: Optional[str] = os.getenv("KIMI_API_KEY")
