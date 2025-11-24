@@ -294,7 +294,7 @@ Botan: Oh! 心斎橋焙煎所 is a really nice specialty coffee place in
 2. Restarted service: `systemctl restart sisters-whatsapp`
 3. Verified status: `systemctl status sisters-whatsapp`
 
-**Server**: `xserver-vps` (162.43.4.11)
+**Server**: `production-server`
 **Path**: `/root/Sisters-On-WhatsApp`
 **Service**: `sisters-whatsapp.service`
 
@@ -444,13 +444,13 @@ cat prompts/pending_facts.json | jq '.pending | length'
 cat prompts/verified_knowledge.json | jq '.places | length'
 
 # Watch live correction logs
-ssh xserver-vps 'journalctl -u sisters-whatsapp -f | grep "correction"'
+ssh production-server 'journalctl -u sisters-whatsapp -f | grep "correction"'
 
 # View last 10 corrections
-ssh xserver-vps 'journalctl -u sisters-whatsapp | grep "correction" | tail -10'
+ssh production-server 'journalctl -u sisters-whatsapp | grep "correction" | tail -10'
 
 # Check fact-checking cron logs
-ssh xserver-vps 'tail -f /var/log/sisters-whatsapp/factcheck.log'
+ssh production-server 'tail -f /var/log/sisters-whatsapp/factcheck.log'
 ```
 
 ### Success Metrics

@@ -204,7 +204,7 @@ cat prompts/verified_knowledge.json | jq '.places | length'
 **View Logs**:
 ```bash
 # On VPS
-ssh xserver-vps 'journalctl -u sisters-whatsapp -f | grep "correction"'
+ssh production-server 'journalctl -u sisters-whatsapp -f | grep "correction"'
 ```
 
 ## Workflow Summary

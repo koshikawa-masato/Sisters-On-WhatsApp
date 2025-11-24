@@ -167,7 +167,7 @@ ENABLE_ADMIN_NOTIFICATIONS=false
 
 Restart server:
 ```bash
-ssh xserver-vps 'systemctl restart sisters-whatsapp'
+ssh production-server 'systemctl restart sisters-whatsapp'
 ```
 
 ### Disable Specific Notification Types
@@ -191,17 +191,17 @@ Edit `src/whatsapp_webhook/server.py` and comment out the specific notification 
 grep ADMIN /home/koshikawa/Sisters-On-WhatsApp/.env
 
 # Check VPS .env
-ssh xserver-vps 'cd /root/Sisters-On-WhatsApp && grep ADMIN .env'
+ssh production-server 'cd /root/Sisters-On-WhatsApp && grep ADMIN .env'
 ```
 
 ### View Notification Logs
 
 ```bash
 # Watch for notification events
-ssh xserver-vps 'journalctl -u sisters-whatsapp -f | grep -i notification'
+ssh production-server 'journalctl -u sisters-whatsapp -f | grep -i notification'
 
 # Check recent notifications
-ssh xserver-vps 'journalctl -u sisters-whatsapp | grep "Admin notification sent" | tail -10'
+ssh production-server 'journalctl -u sisters-whatsapp | grep "Admin notification sent" | tail -10'
 ```
 
 ## Cost Implications
@@ -244,7 +244,7 @@ You should receive new user notification.
 
 **1. Check Configuration**:
 ```bash
-ssh xserver-vps 'cd /root/Sisters-On-WhatsApp && cat .env | grep ADMIN'
+ssh production-server 'cd /root/Sisters-On-WhatsApp && cat .env | grep ADMIN'
 ```
 
 Should show:
@@ -255,7 +255,7 @@ ENABLE_ADMIN_NOTIFICATIONS=true
 
 **2. Check Server Logs**:
 ```bash
-ssh xserver-vps 'journalctl -u sisters-whatsapp -f'
+ssh production-server 'journalctl -u sisters-whatsapp -f'
 ```
 
 Look for:
@@ -264,7 +264,7 @@ Look for:
 
 **3. Verify Twilio Credentials**:
 ```bash
-ssh xserver-vps 'cd /root/Sisters-On-WhatsApp && cat .env | grep TWILIO'
+ssh production-server 'cd /root/Sisters-On-WhatsApp && cat .env | grep TWILIO'
 ```
 
 **4. Check Phone Number Format**:
@@ -273,7 +273,7 @@ ssh xserver-vps 'cd /root/Sisters-On-WhatsApp && cat .env | grep TWILIO'
 
 **5. Restart Server**:
 ```bash
-ssh xserver-vps 'systemctl restart sisters-whatsapp'
+ssh production-server 'systemctl restart sisters-whatsapp'
 ```
 
 ### Notification Delay?
