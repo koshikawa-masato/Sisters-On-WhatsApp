@@ -136,16 +136,44 @@ async def whatsapp_webhook(
         is_first_message = len(history) == 0
 
         if is_first_message:
-            # Send welcome message introducing all three sisters
-            welcome_message = (
-                "Hello! 👋 Welcome to Sisters-On-WhatsApp!\n\n"
-                "We're three AI sisters who can help you with different topics:\n\n"
-                "🌸 *Botan* - Social media & entertainment expert (streaming, content creation, pop culture)\n"
-                "🎵 *Kasho* - Music professional & life advisor (music production, career, relationships)\n"
-                "📚 *Yuri* - Book lover & creative thinker (literature, writing, philosophy)\n\n"
-                "Just ask your question, and the right sister will respond automatically! What would you like to know?"
-            )
+            # Detect language for welcome message
+            language = detect_language(Body)
+
+            # Send welcome message in user's language
+            if language == 'zh':
+                welcome_message = (
+                    "你好！👋 歡迎來到Sisters-On-WhatsApp！\n\n"
+                    "我們是三位AI姐妹，可以幫助您解決不同的問題：\n\n"
+                    "🌸 *牡丹（Botan）* - 社交媒體與娛樂專家（直播、內容創作、流行文化）\n"
+                    "🎵 *芍藥（Kasho）* - 音樂專業人士與人生顧問（音樂製作、職業、人際關係）\n"
+                    "📚 *百合（Yuri）* - 書籍愛好者與創意思考者（文學、寫作、哲學）\n\n"
+                    "只需提出您的問題，合適的姐妹會自動回應！您想了解什麼呢？"
+                )
+            else:
+                welcome_message = (
+                    "Hello! 👋 Welcome to Sisters-On-WhatsApp!\n\n"
+                    "We're three AI sisters who can help you with different topics:\n\n"
+                    "🌸 *Botan* - Social media & entertainment expert (streaming, content creation, pop culture)\n"
+                    "🎵 *Kasho* - Music professional & life advisor (music production, career, relationships)\n"
+                    "📚 *Yuri* - Book lover & creative thinker (literature, writing, philosophy)\n\n"
+                    "Just ask your question, and the right sister will respond automatically! What would you like to know?"
+                )
+
             twiml_response.message(welcome_message)
+
+            # Save welcome message to history to prevent re-sending
+            session_manager.add_message(
+                phone_number=phone_number,
+                character="system",
+                role="assistant",
+                content=welcome_message
+            )
+            session_manager.add_message(
+                phone_number=phone_number,
+                character="system",
+                role="user",
+                content=Body
+            )
 
             # Notify admin about new user
             admin_notifier.send_new_user_notification(phone_number, Body)
