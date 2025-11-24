@@ -4,7 +4,12 @@
 
 ## Overview
 
-Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (sisters) who automatically respond based on conversation topics. Built for WhatsApp Business API and targeting global English-speaking markets.
+Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (sisters) who automatically respond based on conversation topics. Built for WhatsApp Business API and targeting global markets with **bilingual support (English + Chinese)**.
+
+**🌏 Language Support:**
+- 🇺🇸 **English** - Full support
+- 🇨🇳 🇹🇼 **Chinese** (Simplified & Traditional) - Full support
+- Automatic language detection and response matching
 
 **🎬 Live Demo:**
 
@@ -14,22 +19,29 @@ Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (
 
 ## The Three Sisters
 
-- **Botan** 🌸 - Social media enthusiast and entertainment expert
-  - Topics: Streaming, content creation, pop culture, social media
+- **Botan (牡丹)** 🌸 - Social media enthusiast and entertainment expert
+  - Topics: Streaming, content creation, pop culture, social media, **Japanese pop culture**
+  - Expertise: VTuber culture, anime/manga, festivals, casual Japanese food culture
   - Personality: Friendly, energetic, outgoing
+  - Languages: English, Chinese (Simplified/Traditional)
 
-- **Kasho** 🎵 - Music professional and life advisor
-  - Topics: Music production, instruments, career advice, relationships
+- **Kasho (芍藥)** 🎵 - Music professional and life advisor
+  - Topics: Music production, instruments, career advice, relationships, **Japanese traditional culture**
+  - Expertise: Tea ceremony (茶道), ikebana, calligraphy, kimono, kaiseki cuisine, traditional music
   - Personality: Professional, thoughtful, supportive
+  - Languages: English, Chinese (Simplified/Traditional)
 
-- **Yuri** 📚 - Book lover and creative thinker
-  - Topics: Literature, creative writing, science fiction, philosophy
+- **Yuri (百合)** 📚 - Book lover and creative thinker
+  - Topics: Literature, creative writing, science fiction, philosophy, **Japanese literature & spiritual culture**
+  - Expertise: Japanese literature, haiku/tanka poetry, temples/shrines, Zen Buddhism, samurai history
   - Personality: Thoughtful, inquisitive, literary
+  - Languages: English, Chinese (Simplified/Traditional)
 
 ## Key Features
 
 - ✨ **Automatic Character Selection** - System intelligently routes questions to the appropriate sister based on topic
-- 🌐 **Global Accessibility** - Built on WhatsApp platform, accessible worldwide
+- 🌏 **Bilingual Support** - Seamlessly handles English and Chinese (Simplified/Traditional) with automatic language detection
+- 🇯🇵 **Japanese Culture Expertise** - Comprehensive coverage of Japanese pop culture, traditional arts, and spiritual heritage
 - 🎭 **Distinct Personalities** - Each sister has unique expertise, speech patterns, and personality traits
 - 💬 **Natural Conversations** - Context-aware responses with conversation memory
 - 🚀 **Scalable Architecture** - FastAPI backend with PostgreSQL session management
@@ -41,11 +53,13 @@ Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (
 - **Backend**: Python 3.11 + FastAPI
 - **Database**: PostgreSQL 15
 - **Primary LLM**: Kimi (Moonshot AI) - `kimi-k2-turbo-preview`
+  - **Bilingual capability**: Native English + Chinese support
   - Cost: ~$2.30/month for 1,000 messages
   - Long context window (8k tokens)
   - Fast responses (~2-4 seconds)
 - **Backup LLM**: OpenAI GPT-4o-mini (automatic failover)
 - **Hosting**: VPS (production deployment)
+- **Language Detection**: Automatic CJK character ratio analysis
 
 ### Automatic LLM Failover System
 
@@ -102,10 +116,11 @@ User Message → Kimi API ❌ (timeout/error/500)
 **How to start:**
 1. Click the button above or send a WhatsApp message to: **+1 (415) 523-8886**
 2. Send the join code: `join situation-completely`
-3. Start chatting! Try asking:
-   - "Who knows a lot about streaming?" → **Botan** 🌸 will respond
-   - "Can you help me with music production?" → **Kasho** 🎵 will respond
-   - "What's a good sci-fi book?" → **Yuri** 📚 will respond
+3. Start chatting! Try asking (in English or Chinese):
+   - **English**: "Who knows a lot about streaming?" → **Botan** 🌸 will respond
+   - **Chinese**: "請問茶道是什麼？" (What is tea ceremony?) → **Kasho** 🎵 will respond
+   - **English**: "What's a good sci-fi book?" → **Yuri** 📚 will respond
+   - **Chinese**: "請問俳句是什麼？" (What is haiku?) → **Yuri** 📚 will respond
 
 **⚠️ Alpha Testing Notice:**
 This uses Twilio Sandbox (shared test number) for development and testing. The system is production-ready and will be deployed to a dedicated WhatsApp Business number after Meta business verification completes (2-4 weeks).
@@ -144,11 +159,14 @@ User (WhatsApp) → WhatsApp Business API → Webhook Server
 
 ## Related Projects
 
-- [AI-Vtuber-Project](https://github.com/koshikawa-masato/AI-Vtuber-Project) - Original LINE Bot implementation (Japanese + English)
+- [AI-Vtuber-Project](https://github.com/koshikawa-masato/AI-Vtuber-Project) - Original LINE Bot implementation
+  - Platform: LINE Messaging API
+  - Languages: Japanese + English (bilingual)
+  - Target: Japanese market (private)
 
 ## Inspiration
 
-This project is inspired by Japanese VTuber culture, where AI personalities have distinct characteristics and fan bases. Sisters-On-WhatsApp adapts this concept for global markets, introducing character-driven AI interaction design to Western audiences.
+This project is inspired by Japanese VTuber culture, where AI personalities have distinct characteristics and fan bases. Sisters-On-WhatsApp adapts this concept for global markets, introducing character-driven AI interaction design to international audiences with bilingual support (English + Chinese) and comprehensive Japanese cultural expertise.
 
 ## License
 
