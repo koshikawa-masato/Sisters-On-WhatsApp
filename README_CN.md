@@ -1,0 +1,187 @@
+# Sisters-On-WhatsApp（三姐妹 WhatsApp 聊天機器人）
+
+**具有自動角色選擇功能的多人格 AI 聊天機器人**
+
+[English](README.md) | [中文](README_CN.md)
+
+## 概述
+
+Sisters-On-WhatsApp 是一個具有三個不同 AI 人格（姐妹）的聊天機器人，能夠根據對話主題自動回應。基於 WhatsApp Business API 構建，面向全球市場，**支持雙語（英語 + 中文）**。
+
+**🌏 語言支持：**
+- 🇺🇸 **英語** - 完全支持
+- 🇨🇳 🇹🇼 **中文**（簡體與繁體）- 完全支持
+- 自動語言檢測並匹配回應
+
+**🎬 現場演示：**
+
+[![觀看演示](https://img.youtube.com/vi/OSuatRt_Gyo/maxresdefault.jpg)](https://youtube.com/shorts/OSuatRt_Gyo)
+
+*點擊觀看三姐妹實際運作！*
+
+## 三姐妹介紹
+
+- **牡丹（Botan）** 🌸 - 社交媒體愛好者與娛樂專家
+  - 主題：直播、內容創作、流行文化、社交媒體、**日本流行文化**
+  - 專長：VTuber 文化、動漫、祭典、日本休閒美食文化
+  - 性格：友善、充滿活力、外向
+  - 語言：英語、中文（簡體/繁體）
+
+- **芍藥（Kasho）** 🎵 - 音樂專業人士與人生顧問
+  - 主題：音樂製作、樂器、職業建議、人際關係、**日本傳統文化**
+  - 專長：茶道（茶道）、花道、書道、和服、懷石料理、傳統音樂
+  - 性格：專業、體貼、支持性
+  - 語言：英語、中文（簡體/繁體）
+
+- **百合（Yuri）** 📚 - 書籍愛好者與創意思考者
+  - 主題：文學、創意寫作、科幻小說、哲學、**日本文學與精神文化**
+  - 專長：日本文學、俳句/短歌詩、寺廟/神社、禪宗、武士歷史
+  - 性格：深思熟慮、好奇、文學性
+  - 語言：英語、中文（簡體/繁體）
+
+## 主要功能
+
+- ✨ **自動角色選擇** - 系統根據主題智能地將問題路由到合適的姐妹
+- 🌏 **雙語支持** - 無縫處理英語和中文（簡體/繁體），並自動檢測語言
+- 🇯🇵 **日本文化專業知識** - 全面涵蓋日本流行文化、傳統藝術和精神遺產
+- 🎭 **鮮明個性** - 每位姐妹都有獨特的專業知識、說話方式和性格特徵
+- 💬 **自然對話** - 具有對話記憶的上下文感知回應
+- 🚀 **可擴展架構** - FastAPI 後端，PostgreSQL 會話管理
+- 🛡️ **高可用性** - 自動 LLM 故障轉移確保 99.9% 正常運行時間
+
+## 技術堆棧
+
+- **平台**：WhatsApp Business API（雲端 API）
+- **後端**：Python 3.11 + FastAPI
+- **數據庫**：PostgreSQL 15
+- **主要 LLM**：Kimi（Moonshot AI）- `kimi-k2-turbo-preview`
+  - **雙語能力**：原生英語 + 中文支持
+  - 成本：每 1,000 條訊息約 $2.30/月
+  - 長上下文窗口（8k tokens）
+  - 快速回應（約 2-4 秒）
+- **備用 LLM**：OpenAI GPT-4o-mini（自動故障轉移）
+- **託管**：VPS（生產部署）
+- **語言檢測**：自動 CJK 字符比例分析
+
+### 自動 LLM 故障轉移系統
+
+系統實現智能故障轉移以實現高可用性：
+
+**正常運行：**
+```
+用戶訊息 → Kimi API → 回應 ✅
+```
+
+**自動故障轉移（當 Kimi 失敗時）：**
+```
+用戶訊息 → Kimi API ❌（超時/錯誤/500）
+         ↓ 自動故障轉移
+     OpenAI API → 回應 ✅
+```
+
+**自動恢復：**
+- 每個請求首先嘗試主要 LLM（Kimi）
+- 如果 Kimi 失敗，該請求使用 OpenAI（備用）
+- 下一個請求自動再次嘗試 Kimi
+- **無需手動干預** - 即時恢復
+
+**優勢：**
+- ✅ **99.9% 正常運行時間** - 即使主要 LLM 失敗，服務仍然繼續
+- ✅ **成本優化** - 始終優先使用更便宜的 Kimi
+- ✅ **透明** - 用戶從不會看到錯誤
+- ✅ **完全記錄** - 監控故障轉移事件以進行分析
+
+**示例場景：**
+```
+10:00 - 訊息 → Kimi ✅ ($0.001)
+10:01 - 訊息 → Kimi ✅ ($0.001)
+10:02 - 訊息 → Kimi ❌ → OpenAI ✅ ($0.015) [Kimi 故障]
+10:03 - 訊息 → Kimi ❌ → OpenAI ✅ ($0.015) [仍然故障]
+10:04 - 訊息 → Kimi ✅ ($0.001) [自動恢復！]
+10:05 - 訊息 → Kimi ✅ ($0.001)
+```
+
+## 項目狀態
+
+🚀 **生產就緒** - 系統功能齊全，具有自動 LLM 故障轉移和高可用性
+
+**當前階段：**
+- ✅ **Alpha 測試** - Twilio 沙箱（臨時測試環境）
+- 🔄 **生產待定** - WhatsApp Business API 註冊進行中
+
+## 立即試用（Alpha 版本）
+
+**在 WhatsApp 上測試三姐妹：**
+
+[![在 WhatsApp 上聊天](https://img.shields.io/badge/Chat%20on-WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://wa.me/14155238886?text=join%20situation-completely)
+
+**如何開始：**
+1. 點擊上面的按鈕或發送 WhatsApp 訊息至：**+1 (415) 523-8886**
+2. 發送加入代碼：`join situation-completely`
+3. 開始聊天！嘗試詢問（英語或中文）：
+   - **英語**："Who knows a lot about streaming?" → **牡丹** 🌸 會回應
+   - **中文**："請問茶道是什麼？"（什麼是茶道？）→ **芍藥** 🎵 會回應
+   - **英語**："What's a good sci-fi book?" → **百合** 📚 會回應
+   - **中文**："請問俳句是什麼？"（什麼是俳句？）→ **百合** 📚 會回應
+
+**⚠️ Alpha 測試通知：**
+這使用 Twilio 沙箱（共享測試號碼）進行開發和測試。系統已準備好投入生產，將在 Meta 商業驗證完成後（2-4 週）部署到專用的 WhatsApp Business 號碼。
+
+有關生產部署詳情，請參閱 [生產部署指南](docs/Production_Deployment_Guide.md)。
+
+## 文檔
+
+- [設計規範](docs/design/Sisters_On_WhatsApp_Design_Specification.md) - 全面的設計文檔
+- [角色指南](docs/Character_Guide.md) - 詳細的角色簡介和性格特徵
+- [API 集成](docs/API_Integration.md) - WhatsApp Business API 集成指南
+
+## 架構
+
+```
+用戶（WhatsApp）→ WhatsApp Business API → Webhook 服務器
+                                             ↓
+                                       主題分析器
+                                             ↓
+                                       角色路由器
+                                             ↓
+                              ┌──────────────┼──────────────┐
+                              ↓              ↓              ↓
+                           牡丹           芍藥           百合
+                              ↓              ↓              ↓
+                              └──────────────┼──────────────┘
+                                             ↓
+                                       LLM 引擎
+                                             ↓
+                                  WhatsApp 訊息格式化器
+                                             ↓
+                                   WhatsApp Business API
+                                             ↓
+                                     用戶（WhatsApp）
+```
+
+## 相關項目
+
+- [AI-Vtuber-Project](https://github.com/koshikawa-masato/AI-Vtuber-Project) - 原始 LINE Bot 實現
+  - 平台：LINE Messaging API
+  - 語言：日語 + 英語（雙語）
+  - 目標：日本市場（私人）
+
+## 靈感
+
+該項目受到日本 VTuber 文化的啟發，在該文化中，AI 人格具有鮮明的特徵和粉絲群。Sisters-On-WhatsApp 將這一概念適應於全球市場，通過雙語支持（英語 + 中文）和全面的日本文化專業知識，向國際觀眾介紹以角色驅動的 AI 互動設計。
+
+## 許可證
+
+私人項目 - 保留所有權利
+
+## 作者
+
+**Koshikawa Masato** - 50 年的技術熱情
+- 與 Claude Code（Kuroko）平等合作
+- 構建創新的 AI × 角色 × 訊息產品
+
+---
+
+🤖 **使用 Claude Code（Kuroko）生成**
+
+Co-Authored-By: Claude <noreply@anthropic.com>

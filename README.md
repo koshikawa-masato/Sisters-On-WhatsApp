@@ -2,6 +2,8 @@
 
 **Multi-personality AI chatbot for WhatsApp with automatic character selection**
 
+[English](README.md) | [中文](README_CN.md)
+
 ## Overview
 
 Sisters-On-WhatsApp is an AI chatbot featuring three distinct AI personalities (sisters) who automatically respond based on conversation topics. Built for WhatsApp Business API and targeting global markets with **bilingual support (English + Chinese)**.
