@@ -45,7 +45,7 @@ class CharacterPersonality:
             character: Character name (botan, kasho, yuri)
 
         Returns:
-            System prompt text
+            System prompt text (common prompt + character-specific prompt)
 
         Raises:
             ValueError: If character is unknown
@@ -63,7 +63,15 @@ class CharacterPersonality:
         if character in self._cache:
             return self._cache[character]
 
-        # Load from file
+        # Load common prompt (shared by all sisters)
+        common_prompt_file = self.prompts_dir / "common_system_prompt.txt"
+        common_prompt = ""
+
+        if common_prompt_file.exists():
+            with open(common_prompt_file, 'r', encoding='utf-8') as f:
+                common_prompt = f.read().strip()
+
+        # Load character-specific prompt
         prompt_file = self.prompts_dir / f"{character}_system_prompt.txt"
 
         if not prompt_file.exists():
@@ -73,7 +81,10 @@ class CharacterPersonality:
             )
 
         with open(prompt_file, 'r', encoding='utf-8') as f:
-            prompt = f.read().strip()
+            character_prompt = f.read().strip()
+
+        # Combine: character-specific first, then common rules
+        prompt = f"{character_prompt}\n\n---\n\n{common_prompt}" if common_prompt else character_prompt
 
         # Cache for future use
         self._cache[character] = prompt
