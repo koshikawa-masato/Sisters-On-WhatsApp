@@ -21,6 +21,7 @@ from ..characters.personality import CharacterPersonality
 from ..routing.topic_analyzer import TopicAnalyzer
 from ..session.manager import SessionManager
 from ..moderation.openai_moderator import OpenAIModerator
+from ..utils.language_detector import detect_language, get_language_instruction
 
 # Validate configuration
 Config.validate()
@@ -160,17 +161,23 @@ async def whatsapp_webhook(
             session_manager.update_character(phone_number, selected_character)
             logger.info(f"Character switched: {current_character} -> {selected_character}")
 
-        # Step 5: Load character personality
-        system_prompt = character_loader.get_system_prompt(selected_character)
+        # Step 5: Detect language
+        language = detect_language(Body)
+        language_instruction = get_language_instruction(language)
+        logger.info(f"Detected language: {language}")
 
-        # Step 6: Get conversation history
+        # Step 6: Load character personality with language instruction
+        system_prompt = character_loader.get_system_prompt(selected_character)
+        system_prompt += language_instruction
+
+        # Step 7: Get conversation history
         history = session_manager.get_conversation_history(
             phone_number,
             character=selected_character,
             limit=Config.CONVERSATION_HISTORY_LIMIT
         )
 
-        # Step 7: Build messages for LLM
+        # Step 8: Build messages for LLM
         messages = [Message(role="system", content=system_prompt)]
 
         # Add conversation history
@@ -180,7 +187,7 @@ async def whatsapp_webhook(
         # Add current user message
         messages.append(Message(role="user", content=Body))
 
-        # Step 8: Generate response (with automatic failover)
+        # Step 9: Generate response (with automatic failover)
         try:
             response_text = await llm_provider.generate(
                 messages,
