@@ -563,7 +563,7 @@ This is not a demo. This is not a prototype. **This is live production software.
 ### Service Status (Real Output)
 
 ```bash
-$ ssh xserver-vps 'systemctl status sisters-whatsapp'
+$ ssh production-server 'systemctl status sisters-whatsapp'
 
 ● sisters-whatsapp.service - Sisters-On-WhatsApp Bot
      Loaded: loaded (/etc/systemd/system/sisters-whatsapp.service)
@@ -1263,7 +1263,7 @@ class SessionManager:
 #!/bin/bash
 set -e
 
-VPS_ALIAS="xserver-vps"
+VPS_ALIAS="production-server"
 VPS_PATH="/root/Sisters-On-WhatsApp"
 
 echo "[1/4] Syncing code to VPS..."
