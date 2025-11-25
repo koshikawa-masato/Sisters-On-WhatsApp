@@ -167,47 +167,27 @@ async def whatsapp_webhook(
             logger.info(f"Help info requested by {phone_number[:6]}...")
             return Response(content=str(twiml_response), media_type="application/xml")
 
-        # Step 0.5: Check consent status
+        # Step 0.5: Check consent status (implicit consent model)
         user_consent = consent_manager.get_user_consent(phone_number)
 
         if not user_consent:
-            # New user - show privacy policy and request consent
+            # New user - grant implicit consent and continue to chat
             consent_manager.create_pending_consent(phone_number, detected_language)
-            consent_message = PrivacyPolicyMessages.get_consent_message(phone_number, detected_language)
-            twiml_response.message(consent_message)
-            logger.info(f"Sent privacy policy to new user {phone_number[:6]}...")
-            return Response(content=str(twiml_response), media_type="application/xml")
+            consent_manager.grant_consent(phone_number)
+            logger.info(f"Implicit consent granted for new user {phone_number[:6]}...")
+            # Continue to normal flow - don't return, let them chat immediately
 
-        if user_consent["status"] == "pending":
-            # User hasn't responded to consent yet
-            if consent_command == "agree":
-                consent_manager.grant_consent(phone_number)
-                response_msg = PrivacyPolicyMessages.get_response("consent_accepted", detected_language)
-                twiml_response.message(response_msg)
-                logger.info(f"Consent granted by {phone_number[:6]}...")
-                return Response(content=str(twiml_response), media_type="application/xml")
+        elif user_consent["status"] == "pending":
+            # Legacy pending user - grant consent now
+            consent_manager.grant_consent(phone_number)
+            logger.info(f"Consent auto-granted for pending user {phone_number[:6]}...")
 
-            elif consent_command == "decline":
-                consent_manager.decline_consent(phone_number)
-                response_msg = PrivacyPolicyMessages.get_response("consent_declined", detected_language)
-                twiml_response.message(response_msg)
-                logger.info(f"Consent declined by {phone_number[:6]}...")
-                return Response(content=str(twiml_response), media_type="application/xml")
+        elif user_consent["status"] in ["declined", "withdrawn"]:
+            # User previously opted out - re-grant consent (they're messaging again)
+            consent_manager.grant_consent(phone_number)
+            logger.info(f"Consent re-granted for returning user {phone_number[:6]}...")
 
-            else:
-                # Remind user to respond to consent
-                response_msg = PrivacyPolicyMessages.get_response("consent_required", detected_language)
-                twiml_response.message(response_msg)
-                return Response(content=str(twiml_response), media_type="application/xml")
-
-        if user_consent["status"] in ["declined", "withdrawn"]:
-            # User declined - show policy again in case they want to agree
-            consent_manager.create_pending_consent(phone_number, detected_language)
-            consent_message = PrivacyPolicyMessages.get_consent_message(phone_number, detected_language)
-            twiml_response.message(consent_message)
-            return Response(content=str(twiml_response), media_type="application/xml")
-
-        # At this point, user has valid consent (status == "granted")
+        # At this point, user has valid consent - continue to chat
 
         # Step 1: Content moderation
         moderation_result = await moderator.moderate(Body)
@@ -229,24 +209,30 @@ async def whatsapp_webhook(
             # Detect language for welcome message
             language = detect_language(Body)
 
-            # Send welcome message in user's language
+            # Get region-specific privacy URL
+            region = PrivacyPolicyMessages.detect_region(phone_number)
+            policy_url = PrivacyPolicyMessages.POLICY_URLS.get(region, PrivacyPolicyMessages.POLICY_URLS[Region.DEFAULT])
+
+            # Short, natural welcome message with embedded privacy info
             if language == 'zh':
                 welcome_message = (
-                    "你好！👋 歡迎來到Sisters-On-WhatsApp！\n\n"
-                    "我們是三位AI姐妹，可以幫助您解決不同的問題：\n\n"
-                    "🌸 *牡丹（Botan）* - 社交媒體與娛樂專家（直播、內容創作、流行文化）\n"
-                    "🎵 *芍藥（Kasho）* - 音樂專業人士與人生顧問（音樂製作、職業、人際關係）\n"
-                    "📚 *百合（Yuri）* - 書籍愛好者與創意思考者（文學、寫作、哲學）\n\n"
-                    "只需提出您的問題，合適的姐妹會自動回應！您想了解什麼呢？"
+                    "嗨！👋 我是Botan，三姐妹AI之一～\n\n"
+                    "🌸 我 - VTuber、直播\n"
+                    "🎵 Kasho姐 - 音樂、人生相談\n"
+                    "📚 Yuri妹 - 書籍、創作\n\n"
+                    "隨便問什麼，對的姐妹會回答你！\n\n"
+                    f"ℹ️ 對話會被保存。詳情：{policy_url}\n"
+                    "想刪除？說「刪除我的資料」就OK～"
                 )
             else:
                 welcome_message = (
-                    "Hello! 👋 Welcome to Sisters-On-WhatsApp!\n\n"
-                    "We're three AI sisters who can help you with different topics:\n\n"
-                    "🌸 *Botan* - Social media & entertainment expert (streaming, content creation, pop culture)\n"
-                    "🎵 *Kasho* - Music professional & life advisor (music production, career, relationships)\n"
-                    "📚 *Yuri* - Book lover & creative thinker (literature, writing, philosophy)\n\n"
-                    "Just ask your question, and the right sister will respond automatically! What would you like to know?"
+                    "Hey! 👋 I'm Botan, one of three AI sisters~\n\n"
+                    "🌸 Me - VTubers, streaming\n"
+                    "🎵 Kasho sis - Music, life advice\n"
+                    "📚 Yuri sis - Books, writing\n\n"
+                    "Ask anything and the right sister will answer!\n\n"
+                    f"ℹ️ Chats are saved. Details: {policy_url}\n"
+                    "Want to delete? Just say \"delete my data\"~"
                 )
 
             twiml_response.message(welcome_message)
@@ -254,13 +240,13 @@ async def whatsapp_webhook(
             # Save welcome message to history to prevent re-sending
             session_manager.add_message(
                 phone_number=phone_number,
-                character="system",
+                character="botan",
                 role="assistant",
                 content=welcome_message
             )
             session_manager.add_message(
                 phone_number=phone_number,
-                character="system",
+                character="botan",
                 role="user",
                 content=Body
             )

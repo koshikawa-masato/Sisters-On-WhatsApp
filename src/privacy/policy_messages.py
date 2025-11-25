@@ -86,9 +86,15 @@ class PrivacyPolicyMessages:
     # Initial consent messages by region
     CONSENT_MESSAGES = {
         Region.EU: {
-            "en": """🔒 *Privacy Notice (GDPR)*
+            "en": """👋 *Welcome to Sisters-On-WhatsApp!*
 
-Welcome! Before we chat, please read our privacy practices:
+We're three AI sisters who can help you:
+🌸 *Botan* - Streaming & pop culture
+🎵 *Kasho* - Music & life advice
+📚 *Yuri* - Books & creative thinking
+
+🔒 *Privacy Notice (GDPR)*
+Before we chat, please read our privacy practices:
 
 *What we collect:*
 • Your phone number (for identification)
@@ -111,9 +117,15 @@ Welcome! Before we chat, please read our privacy practices:
 Reply *AGREE* to continue, or *DECLINE* to opt out.
 Reply *DELETE* anytime to erase your data.""",
 
-            "zh": """🔒 *隱私聲明 (GDPR)*
+            "zh": """👋 *歡迎來到Sisters-On-WhatsApp！*
 
-歡迎！在開始聊天之前，請閱讀我們的隱私條款：
+我們是三位AI姐妹：
+🌸 *牡丹* - 直播與流行文化
+🎵 *芍藥* - 音樂與人生建議
+📚 *百合* - 書籍與創意思考
+
+🔒 *隱私聲明 (GDPR)*
+在開始聊天之前，請閱讀我們的隱私條款：
 
 *我們收集的資料：*
 • 您的電話號碼（用於識別）
@@ -138,9 +150,15 @@ Reply *DELETE* anytime to erase your data.""",
         },
 
         Region.US: {
-            "en": """🔒 *Privacy Notice (CCPA/CPRA)*
+            "en": """👋 *Welcome to Sisters-On-WhatsApp!*
 
-Welcome! Here's how we handle your information:
+We're three AI sisters who can help you:
+🌸 *Botan* - Streaming & pop culture
+🎵 *Kasho* - Music & life advice
+📚 *Yuri* - Books & creative thinking
+
+🔒 *Privacy Notice (CCPA/CPRA)*
+Here's how we handle your information:
 
 *Information collected:*
 • Phone number (identification)
@@ -163,9 +181,15 @@ Welcome! Here's how we handle your information:
 Reply *AGREE* to continue, or *DECLINE* to opt out.
 Reply *DELETE* anytime to erase your data.""",
 
-            "zh": """🔒 *隱私聲明 (CCPA/CPRA)*
+            "zh": """👋 *歡迎來到Sisters-On-WhatsApp！*
 
-歡迎！以下是我們處理您資訊的方式：
+我們是三位AI姐妹：
+🌸 *牡丹* - 直播與流行文化
+🎵 *芍藥* - 音樂與人生建議
+📚 *百合* - 書籍與創意思考
+
+🔒 *隱私聲明 (CCPA/CPRA)*
+以下是我們處理您資訊的方式：
 
 *收集的資訊：*
 • 電話號碼（識別用途）
@@ -190,9 +214,15 @@ Reply *DELETE* anytime to erase your data.""",
         },
 
         Region.TAIWAN: {
-            "en": """🔒 *Privacy Notice (Taiwan PDPA)*
+            "en": """👋 *Welcome to Sisters-On-WhatsApp!*
 
-Welcome! Please review our data practices:
+We're three AI sisters who can help you:
+🌸 *Botan* - Streaming & pop culture
+🎵 *Kasho* - Music & life advice
+📚 *Yuri* - Books & creative thinking
+
+🔒 *Privacy Notice (Taiwan PDPA)*
+Please review our data practices:
 
 *Data collected:*
 • Phone number (identification)
@@ -215,9 +245,15 @@ Welcome! Please review our data practices:
 Reply *AGREE* to continue, or *DECLINE* to opt out.
 Reply *DELETE* anytime to erase your data.""",
 
-            "zh": """🔒 *隱私聲明（台灣個資法）*
+            "zh": """👋 *歡迎來到Sisters-On-WhatsApp！*
 
-歡迎！請閱讀我們的資料處理方式：
+我們是三位AI姐妹：
+🌸 *牡丹* - 直播與流行文化
+🎵 *芍藥* - 音樂與人生建議
+📚 *百合* - 書籍與創意思考
+
+🔒 *隱私聲明（台灣個資法）*
+請閱讀我們的資料處理方式：
 
 *收集的資料：*
 • 電話號碼（識別用途）
@@ -242,9 +278,15 @@ Reply *DELETE* anytime to erase your data.""",
         },
 
         Region.CHINA: {
-            "en": """🔒 *Privacy Notice (PIPL)*
+            "en": """👋 *Welcome to Sisters-On-WhatsApp!*
 
-Welcome! Please review our data practices:
+We're three AI sisters who can help you:
+🌸 *Botan* - Streaming & pop culture
+🎵 *Kasho* - Music & life advice
+📚 *Yuri* - Books & creative thinking
+
+🔒 *Privacy Notice (PIPL)*
+Please review our data practices:
 
 *Personal information collected:*
 • Phone number (identification)
@@ -268,9 +310,15 @@ Welcome! Please review our data practices:
 Reply *AGREE* to continue, or *DECLINE* to opt out.
 Reply *DELETE* anytime to erase your data.""",
 
-            "zh": """🔒 *隱私聲明（個人信息保護法）*
+            "zh": """👋 *歡迎來到Sisters-On-WhatsApp！*
 
-歡迎！請閱讀我們的數據處理方式：
+我們是三位AI姐妹：
+🌸 *牡丹* - 直播與流行文化
+🎵 *芍藥* - 音樂與人生建議
+📚 *百合* - 書籍與創意思考
+
+🔒 *隱私聲明（個人信息保護法）*
+請閱讀我們的數據處理方式：
 
 *收集的個人信息：*
 • 電話號碼（識別用途）
@@ -296,9 +344,15 @@ Reply *DELETE* anytime to erase your data.""",
         },
 
         Region.DEFAULT: {
-            "en": """🔒 *Privacy Notice*
+            "en": """👋 *Welcome to Sisters-On-WhatsApp!*
 
-Welcome! Please review our data practices:
+We're three AI sisters who can help you:
+🌸 *Botan* - Streaming & pop culture
+🎵 *Kasho* - Music & life advice
+📚 *Yuri* - Books & creative thinking
+
+🔒 *Privacy Notice*
+Please review our data practices:
 
 *Data collected:*
 • Phone number (identification)
@@ -320,9 +374,15 @@ Welcome! Please review our data practices:
 Reply *AGREE* to continue, or *DECLINE* to opt out.
 Reply *DELETE* anytime to erase your data.""",
 
-            "zh": """🔒 *隱私聲明*
+            "zh": """👋 *歡迎來到Sisters-On-WhatsApp！*
 
-歡迎！請閱讀我們的資料處理方式：
+我們是三位AI姐妹：
+🌸 *牡丹* - 直播與流行文化
+🎵 *芍藥* - 音樂與人生建議
+📚 *百合* - 書籍與創意思考
+
+🔒 *隱私聲明*
+請閱讀我們的資料處理方式：
 
 *收集的資料：*
 • 電話號碼（識別用途）
@@ -357,24 +417,42 @@ Reply *DELETE* anytime to erase your data.""",
             "zh": "👋 我們尊重您的選擇。您的資料將不會被收集。\n\n如果您改變主意，隨時發送任何訊息重新開始。"
         },
         "data_deleted": {
-            "en": "🗑️ Your data has been deleted.\n\n• Conversation history: Deleted\n• User profile: Deleted\n• Consent record: Updated to 'withdrawn'\n\nThank you for using our service.",
-            "zh": "🗑️ 您的資料已刪除。\n\n• 對話記錄：已刪除\n• 用戶資料：已刪除\n• 同意記錄：已更新為「已撤回」\n\n感謝您使用我們的服務。"
+            "en": "Done! 🗑️ All your chat history is deleted~\n\nWanna chat again? Just say hi! We'll be here 👋",
+            "zh": "好了！🗑️ 所有對話紀錄都刪掉了～\n\n想再聊？隨時打招呼！我們都在 👋"
         },
         "data_exported": {
             "en": "📦 Your data export is ready.\n\nDue to WhatsApp limitations, please contact us at privacy@sisters-whatsapp.com for a full export.",
             "zh": "📦 您的資料匯出已準備好。\n\n由於WhatsApp限制，請聯繫 privacy@sisters-whatsapp.com 獲取完整匯出。"
         },
         "consent_required": {
-            "en": "⚠️ Please reply *AGREE* or *DECLINE* to our privacy notice before continuing.",
-            "zh": "⚠️ 請先回覆 *AGREE* 或 *DECLINE* 回應我們的隱私聲明。"
+            "en": "Just send your message and I'll help you! 💬",
+            "zh": "直接發送訊息，我來幫你！💬"
         },
         "privacy_info": {
-            "en": "🔒 *Privacy Policy*\n\nYour data is protected with AES-256 encryption.\n\n📋 Full policy: {policy_url}\n\n*Your rights:*\n• DELETE - Erase all your data\n• EXPORT - Request data export\n• PRIVACY - View this message again",
-            "zh": "🔒 *隱私政策*\n\n您的資料受AES-256加密保護。\n\n📋 完整條款：{policy_url}\n\n*您的權利：*\n• DELETE - 刪除所有資料\n• EXPORT - 要求匯出資料\n• PRIVACY - 再次查看此訊息"
+            "en": "🔒 Your data is encrypted and safe with us!\n\n📋 Full policy: {policy_url}\n\nWant to delete your data? Just say \"delete my data\" anytime~",
+            "zh": "🔒 你的資料已加密保護，放心！\n\n📋 完整條款：{policy_url}\n\n想刪除資料？隨時說「刪除我的資料」就可以囉～"
         },
         "help_info": {
-            "en": "📖 *Available Commands*\n\n*Privacy & Data:*\n• PRIVACY - View privacy policy\n• DELETE - Delete all your data\n• EXPORT - Export your data\n\n*Chat:*\n• Just send any message to chat with the sisters!\n• They'll automatically respond based on your topic.\n\n💬 Questions? Contact: privacy@sisters-whatsapp.com",
-            "zh": "📖 *可用指令*\n\n*隱私與資料：*\n• PRIVACY - 查看隱私政策\n• DELETE - 刪除所有資料\n• EXPORT - 匯出資料\n\n*聊天：*\n• 直接發送任何訊息即可與姐妹們聊天！\n• 她們會根據話題自動回應。\n\n💬 有問題？聯繫：privacy@sisters-whatsapp.com"
+            "en": """Hey! Here's how to chat with us~ 💬
+
+🌸 *Botan* - VTubers, streaming, pop culture
+🎵 *Kasho* - Music, career, life advice
+📚 *Yuri* - Books, writing, philosophy
+
+Just ask anything and the right sister will answer!
+
+Want to delete your data? Say "delete my data"
+Privacy info? Say "is my data safe?" """,
+            "zh": """嗨！這是跟我們聊天的方式～ 💬
+
+🌸 *牡丹* - VTuber、直播、流行文化
+🎵 *芍藥* - 音樂、職涯、人生建議
+📚 *百合* - 書籍、寫作、哲學
+
+隨便問什麼，對的姐妹會回答你！
+
+想刪除資料？說「刪除我的資料」
+想知道隱私？說「我的資料安全嗎？」"""
         }
     }
 
@@ -424,11 +502,35 @@ Reply *DELETE* anytime to erase your data.""",
 
         return message.format(policy_url=policy_url)
 
+    # Natural language patterns for intent detection (English + Chinese only)
+    INTENT_PATTERNS = {
+        "delete": {
+            "en": ["delete", "erase", "remove my data", "forget me", "clear history",
+                   "delete my", "remove my", "erase my", "forget my", "clear my"],
+            "zh": ["刪除", "删除", "清除", "消掉", "移除", "忘記我", "忘记我"]
+        },
+        "privacy": {
+            "en": ["privacy", "my data", "data safe", "how do you use", "what do you collect",
+                   "personal information", "is my data", "are you safe"],
+            "zh": ["隱私", "隐私", "個資", "个资", "資料安全", "数据安全", "我的資料", "我的数据"]
+        },
+        "help": {
+            "en": ["help", "how to use", "what can you do", "how does this work", "usage"],
+            "zh": ["幫助", "帮助", "怎麼用", "怎么用", "使用方法", "能做什麼", "能做什么"]
+        },
+        "export": {
+            "en": ["export", "download my data", "get my data", "copy my data"],
+            "zh": ["匯出", "导出", "下載資料", "下载数据"]
+        }
+    }
+
     @classmethod
     def is_consent_command(cls, message: str) -> Optional[str]:
-        """Check if message is a consent command."""
+        """Check if message contains intent using natural language patterns."""
+        msg_lower = message.strip().lower()
         msg_upper = message.strip().upper()
 
+        # Legacy exact match commands (still supported)
         if msg_upper in ["AGREE", "同意", "YES", "OK", "是"]:
             return "agree"
         elif msg_upper in ["DECLINE", "拒絕", "拒绝", "NO", "否"]:
@@ -441,5 +543,12 @@ Reply *DELETE* anytime to erase your data.""",
             return "privacy"
         elif msg_upper in ["HELP", "幫助", "帮助", "?"]:
             return "help"
+
+        # Natural language pattern matching
+        for intent, lang_patterns in cls.INTENT_PATTERNS.items():
+            for lang, patterns in lang_patterns.items():
+                for pattern in patterns:
+                    if pattern.lower() in msg_lower:
+                        return intent
 
         return None

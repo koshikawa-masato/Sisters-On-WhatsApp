@@ -1,12 +1,16 @@
 """Session management for user conversations."""
 
 import os
+import logging
 from typing import Optional, List, Dict
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from .models import Base, UserSession, ConversationHistory
+from ..privacy.encryption import ConversationEncryption
+
+logger = logging.getLogger(__name__)
 
 
 class SessionManager:
@@ -33,19 +37,41 @@ class SessionManager:
         self.engine = create_engine(database_url, pool_pre_ping=True)
         self.SessionLocal = sessionmaker(bind=self.engine)
 
+        # Initialize encryption
+        self.encryption = ConversationEncryption()
+
         # Create tables if they don't exist
         Base.metadata.create_all(self.engine)
 
     def get_or_create_session(self, phone_number: str) -> UserSession:
         """Get existing session or create new one."""
+        phone_hash = self.encryption.hash_phone_number(phone_number)
+
         with self.SessionLocal() as db:
+            # First try to find by hash (new encrypted records)
             session = db.query(UserSession).filter(
-                UserSession.phone_number == phone_number
+                UserSession.phone_hash == phone_hash
             ).first()
 
+            # Fallback: try to find by plain phone number (legacy records)
             if not session:
+                session = db.query(UserSession).filter(
+                    UserSession.phone_number == phone_number,
+                    UserSession.phone_hash.is_(None)
+                ).first()
+
+                # Migrate legacy record if found
+                if session:
+                    session.phone_hash = phone_hash
+                    session.phone_number = self.encryption.encrypt(phone_number)
+                    db.commit()
+                    logger.info(f"Migrated legacy session for phone hash {phone_hash[:8]}...")
+
+            if not session:
+                # Create new encrypted session
                 session = UserSession(
-                    phone_number=phone_number,
+                    phone_hash=phone_hash,
+                    phone_number=self.encryption.encrypt(phone_number),
                     current_character="botan"  # Default to Botan
                 )
                 db.add(session)
@@ -56,10 +82,18 @@ class SessionManager:
 
     def update_character(self, phone_number: str, character: str) -> None:
         """Update the current character for a user."""
+        phone_hash = self.encryption.hash_phone_number(phone_number)
+
         with self.SessionLocal() as db:
+            # Find by hash first, then fallback to plain phone number
             session = db.query(UserSession).filter(
-                UserSession.phone_number == phone_number
+                UserSession.phone_hash == phone_hash
             ).first()
+
+            if not session:
+                session = db.query(UserSession).filter(
+                    UserSession.phone_number == phone_number
+                ).first()
 
             if session:
                 session.current_character = character
@@ -78,13 +112,18 @@ class SessionManager:
         role: str,
         content: str
     ) -> None:
-        """Add a message to conversation history."""
+        """Add a message to conversation history (encrypted)."""
+        phone_hash = self.encryption.hash_phone_number(phone_number)
+        encrypted_phone = self.encryption.encrypt(phone_number)
+        encrypted_content = self.encryption.encrypt(content)
+
         with self.SessionLocal() as db:
             message = ConversationHistory(
-                phone_number=phone_number,
+                phone_hash=phone_hash,
+                phone_number=encrypted_phone,
                 character=character,
                 role=role,
-                content=content
+                content=encrypted_content
             )
             db.add(message)
             db.commit()
@@ -96,7 +135,7 @@ class SessionManager:
         limit: int = 20
     ) -> List[Dict[str, str]]:
         """
-        Get recent conversation history.
+        Get recent conversation history (decrypted).
 
         Args:
             phone_number: User's phone number
@@ -106,9 +145,12 @@ class SessionManager:
         Returns:
             List of messages in format [{"role": "user", "content": "..."}]
         """
+        phone_hash = self.encryption.hash_phone_number(phone_number)
+
         with self.SessionLocal() as db:
+            # Try to find by hash first (new encrypted records)
             query = db.query(ConversationHistory).filter(
-                ConversationHistory.phone_number == phone_number
+                ConversationHistory.phone_hash == phone_hash
             )
 
             if character:
@@ -118,13 +160,32 @@ class SessionManager:
                 desc(ConversationHistory.timestamp)
             ).limit(limit).all()
 
+            # If no messages found by hash, try legacy plain phone number
+            if not messages:
+                query = db.query(ConversationHistory).filter(
+                    ConversationHistory.phone_number == phone_number,
+                    ConversationHistory.phone_hash.is_(None)
+                )
+                if character:
+                    query = query.filter(ConversationHistory.character == character)
+
+                messages = query.order_by(
+                    desc(ConversationHistory.timestamp)
+                ).limit(limit).all()
+
             # Reverse to get chronological order
             messages.reverse()
 
-            return [
-                {"role": msg.role, "content": msg.content}
-                for msg in messages
-            ]
+            # Decrypt content
+            result = []
+            for msg in messages:
+                content = msg.content
+                # Decrypt if encrypted (check if it looks like encrypted data)
+                if self.encryption.is_encrypted(content):
+                    content = self.encryption.decrypt(content)
+                result.append({"role": msg.role, "content": content})
+
+            return result
 
     def clear_old_history(self, days: int = 30) -> int:
         """

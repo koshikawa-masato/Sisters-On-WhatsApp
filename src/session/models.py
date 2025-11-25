@@ -14,7 +14,8 @@ class UserSession(Base):
     __tablename__ = "user_sessions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    phone_number = Column(String(50), nullable=False, index=True, unique=True)
+    phone_hash = Column(String(64), nullable=True, index=True, unique=True)  # SHA-256 hash for lookup
+    phone_number = Column(String(255), nullable=False)  # Encrypted phone number
     current_character = Column(String(20), nullable=False, default="botan")
     last_interaction = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -29,10 +30,11 @@ class ConversationHistory(Base):
     __tablename__ = "conversation_history"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    phone_number = Column(String(50), nullable=False, index=True)
+    phone_hash = Column(String(64), nullable=True, index=True)  # SHA-256 hash for lookup
+    phone_number = Column(String(255), nullable=False)  # Encrypted phone number
     character = Column(String(20), nullable=False)
     role = Column(String(20), nullable=False)  # 'user' or 'assistant'
-    content = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)  # Encrypted content
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
