@@ -24,6 +24,9 @@ from ..moderation.openai_moderator import OpenAIModerator
 from ..utils.language_detector import detect_language, get_language_instruction
 from ..utils.admin_notifier import AdminNotifier
 from ..memory.conversation_learner import ConversationLearner
+from ..privacy.consent_manager import ConsentManager
+from ..privacy.policy_messages import PrivacyPolicyMessages
+from ..privacy.data_manager import DataManager
 
 # Validate configuration
 Config.validate()
@@ -73,6 +76,15 @@ session_manager = SessionManager()  # PostgreSQL persistent sessions enabled
 moderator = OpenAIModerator()
 conversation_learner = ConversationLearner()
 admin_notifier = AdminNotifier()
+consent_manager = ConsentManager()
+data_manager = DataManager()
+
+# Ensure privacy tables exist
+try:
+    consent_manager.ensure_table_exists()
+    logger.info("Privacy tables initialized")
+except Exception as e:
+    logger.warning(f"Privacy table initialization failed (will retry on first use): {e}")
 
 # Character emoji icons
 CHARACTER_EMOJIS = {
@@ -118,6 +130,70 @@ async def whatsapp_webhook(
     try:
         # Extract phone number (remove "whatsapp:" prefix)
         phone_number = From.replace("whatsapp:", "")
+
+        # Detect language early for privacy messages
+        detected_language = detect_language(Body)
+
+        # Step 0: Check for privacy commands (DELETE, EXPORT) - always allowed
+        consent_command = PrivacyPolicyMessages.is_consent_command(Body)
+
+        if consent_command == "delete":
+            # Handle data deletion request
+            data_manager.delete_user_data(phone_number, reason="user_request")
+            response_msg = PrivacyPolicyMessages.get_response("data_deleted", detected_language)
+            twiml_response.message(response_msg)
+            logger.info(f"Data deleted for {phone_number[:6]}... (user request)")
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        if consent_command == "export":
+            # Handle data export request
+            data_manager.export_user_data(phone_number)
+            response_msg = PrivacyPolicyMessages.get_response("data_exported", detected_language)
+            twiml_response.message(response_msg)
+            logger.info(f"Data export requested for {phone_number[:6]}...")
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        # Step 0.5: Check consent status
+        user_consent = consent_manager.get_user_consent(phone_number)
+
+        if not user_consent:
+            # New user - show privacy policy and request consent
+            consent_manager.create_pending_consent(phone_number, detected_language)
+            consent_message = PrivacyPolicyMessages.get_consent_message(phone_number, detected_language)
+            twiml_response.message(consent_message)
+            logger.info(f"Sent privacy policy to new user {phone_number[:6]}...")
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        if user_consent["status"] == "pending":
+            # User hasn't responded to consent yet
+            if consent_command == "agree":
+                consent_manager.grant_consent(phone_number)
+                response_msg = PrivacyPolicyMessages.get_response("consent_accepted", detected_language)
+                twiml_response.message(response_msg)
+                logger.info(f"Consent granted by {phone_number[:6]}...")
+                return Response(content=str(twiml_response), media_type="application/xml")
+
+            elif consent_command == "decline":
+                consent_manager.decline_consent(phone_number)
+                response_msg = PrivacyPolicyMessages.get_response("consent_declined", detected_language)
+                twiml_response.message(response_msg)
+                logger.info(f"Consent declined by {phone_number[:6]}...")
+                return Response(content=str(twiml_response), media_type="application/xml")
+
+            else:
+                # Remind user to respond to consent
+                response_msg = PrivacyPolicyMessages.get_response("consent_required", detected_language)
+                twiml_response.message(response_msg)
+                return Response(content=str(twiml_response), media_type="application/xml")
+
+        if user_consent["status"] in ["declined", "withdrawn"]:
+            # User declined - show policy again in case they want to agree
+            consent_manager.create_pending_consent(phone_number, detected_language)
+            consent_message = PrivacyPolicyMessages.get_consent_message(phone_number, detected_language)
+            twiml_response.message(consent_message)
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        # At this point, user has valid consent (status == "granted")
 
         # Step 1: Content moderation
         moderation_result = await moderator.moderate(Body)

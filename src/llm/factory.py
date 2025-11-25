@@ -37,9 +37,10 @@ class LLMFactory:
                 raise ValueError("KIMI_API_KEY not found in environment")
 
             if model is None:
-                model = os.getenv("KIMI_MODEL")
+                # Use KIMI_MODEL_CHAT for conversations, fallback to KIMI_MODEL
+                model = os.getenv("KIMI_MODEL_CHAT") or os.getenv("KIMI_MODEL")
                 if not model:
-                    raise ValueError("KIMI_MODEL not found in environment")
+                    raise ValueError("KIMI_MODEL_CHAT or KIMI_MODEL not found in environment")
 
             return KimiProvider(api_key=api_key, model=model)
 
