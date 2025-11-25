@@ -83,6 +83,8 @@ Local (private)  → .env + code
 - [x] SHA-256 hash for lookups
 - [x] Key stored in `.env` (gitignored)
 - [x] HTTPS via Twilio (webhook)
+- [x] SSH key-only authentication (password disabled)
+- [x] fail2ban (brute force protection)
 
 **Suitable for:** Personal projects, MVP, small startups
 
@@ -146,19 +148,20 @@ sudo systemctl enable fail2ban
 
 ## Recommended Next Steps
 
-### Priority 1: Quick & Free
+### Priority 1: Quick & Free ✅ DONE
 
-1. **Enable SSH 2FA**
+1. ~~**Enable SSH 2FA**~~ → Optional (recommended for high-security)
    ```bash
    sudo apt install libpam-google-authenticator
    ```
 
-2. **Enable fail2ban**
+2. **Enable fail2ban** ✅ Implemented (2025-11-25)
    ```bash
    sudo apt install fail2ban
+   sudo systemctl enable fail2ban
    ```
 
-3. **Restrict SSH to key-only**
+3. **Restrict SSH to key-only** ✅ Already configured
    ```bash
    # /etc/ssh/sshd_config
    PasswordAuthentication no
@@ -190,9 +193,10 @@ Migrate to AWS KMS or GCP KMS when:
 |--------|------------|--------|
 | DB breach | AES-256 encryption | ✅ |
 | Code leak (GitHub) | No secrets in code | ✅ |
-| VPS compromise | SSH hardening, 2FA | ⚠️ Recommended |
+| VPS compromise | SSH key-only, fail2ban | ✅ |
 | Man-in-the-middle | HTTPS (Twilio) | ✅ |
-| Brute force | fail2ban | ⚠️ Recommended |
+| Brute force | fail2ban | ✅ |
+| SSH 2FA | Google Authenticator | ⚠️ Recommended |
 | Key theft | KMS | ⏳ Future |
 
 ---
@@ -230,12 +234,12 @@ Migrate to AWS KMS or GCP KMS when:
 
 | Level | Security | Cost | Use Case |
 |-------|----------|------|----------|
-| **1 (Current)** | AES-256 + Hash | Free | Personal/MVP |
+| **1+ (Current)** | AES-256 + Hash + fail2ban + SSH key-only | Free | Personal/MVP |
 | **2** | + Cloud KMS | $1-3/mo | Startup |
-| **3** | + SSH 2FA + Firewall | $5-10/mo | Growth |
+| **3** | + SSH 2FA + VPN | $5-10/mo | Growth |
 | **4** | + HSM + SOC2 | $10,000+ | Enterprise |
 
-**Current status: Level 1 - Sufficient for personal projects and small-scale production.**
+**Current status: Level 1+ - Enhanced security with fail2ban and SSH hardening. Sufficient for personal projects and small-scale production.**
 
 ---
 
