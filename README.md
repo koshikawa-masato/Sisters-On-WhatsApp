@@ -138,27 +138,12 @@ Based on user feedback requesting privacy guarantees, we implemented a full priv
 - **Root Cause**: Welcome message was not saved to conversation history, causing system to think every message was the first message
 - **Solution**: Now saves both welcome message and user's first message to history
 - **Impact**: All new users now receive proper onboarding experience
-- **Discovered by**: Taiwan/Hong Kong user testing - thank you Enya (🌞) for reporting!
 
 **Enhanced: Bilingual Welcome Message**
 - **Feature**: Welcome message now automatically detects user's language
 - **Chinese users**: Receive welcome in Traditional Chinese (繁體中文)
 - **English users**: Receive welcome in English
 - **Implementation**: Uses CJK character ratio analysis for language detection
-
-### 💬 User Feedback
-
-**From Enya (Taiwan user, 2025-11-24):**
-> "確かにとても便利ですね。あなたのデザインは多くの人に好まれると思います。特に見知らぬ場所に行くときに。"
->
-> *"It's truly very convenient. I think your design will be liked by many people, especially when going to unfamiliar places."*
-
-**Privacy & Security Feedback:**
-> "ユーザーのプライバシーの問題を保証することが適切だと思います。"
->
-> *"I think it's appropriate to guarantee user privacy issues."*
-
-**Response:** ✅ Privacy compliance system implemented on 2025-11-25 with encryption, consent management, and multi-region regulatory compliance.
 
 ## Try It Now (Alpha Version)
 
