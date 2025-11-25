@@ -230,7 +230,7 @@ Send a message to the sisters via WhatsApp:
 User: Actually, it's called Test Cafe
 ```
 
-You should receive notification on +81 80-5546-0377.
+You should receive notification on your configured admin phone.
 
 ### Test New User Notification
 
@@ -351,7 +351,7 @@ ssh production-server 'systemctl restart sisters-whatsapp'
 
 ## Summary
 
-The admin notification system is **live and deployed**. You'll now receive real-time WhatsApp notifications on **+81 80-5546-0377** when:
+The admin notification system is **live and deployed**. You'll now receive real-time WhatsApp notifications on your configured `ADMIN_PHONE_NUMBER` when:
 
 1. 🧠 Users correct the sisters (learning system)
 2. 👋 New users start conversations
