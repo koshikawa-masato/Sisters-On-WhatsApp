@@ -19,7 +19,7 @@ Add to `.env`:
 
 ```bash
 # Admin Notifications
-ADMIN_PHONE_NUMBER=+818055460377
+ADMIN_PHONE_NUMBER=+81XXXXXXXXXX
 ENABLE_ADMIN_NOTIFICATIONS=true
 ```
 
@@ -249,7 +249,7 @@ ssh production-server 'cd /root/Sisters-On-WhatsApp && cat .env | grep ADMIN'
 
 Should show:
 ```
-ADMIN_PHONE_NUMBER=+818055460377
+ADMIN_PHONE_NUMBER=+81XXXXXXXXXX
 ENABLE_ADMIN_NOTIFICATIONS=true
 ```
 
@@ -268,7 +268,7 @@ ssh production-server 'cd /root/Sisters-On-WhatsApp && cat .env | grep TWILIO'
 ```
 
 **4. Check Phone Number Format**:
-- Must include country code: `+818055460377`
+- Must include country code: `+81XXXXXXXXXX`
 - No spaces or special characters
 
 **5. Restart Server**:

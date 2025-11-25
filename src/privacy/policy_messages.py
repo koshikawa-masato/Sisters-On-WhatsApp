@@ -367,6 +367,14 @@ Reply *DELETE* anytime to erase your data.""",
         "consent_required": {
             "en": "⚠️ Please reply *AGREE* or *DECLINE* to our privacy notice before continuing.",
             "zh": "⚠️ 請先回覆 *AGREE* 或 *DECLINE* 回應我們的隱私聲明。"
+        },
+        "privacy_info": {
+            "en": "🔒 *Privacy Policy*\n\nYour data is protected with AES-256 encryption.\n\n📋 Full policy: {policy_url}\n\n*Your rights:*\n• DELETE - Erase all your data\n• EXPORT - Request data export\n• PRIVACY - View this message again",
+            "zh": "🔒 *隱私政策*\n\n您的資料受AES-256加密保護。\n\n📋 完整條款：{policy_url}\n\n*您的權利：*\n• DELETE - 刪除所有資料\n• EXPORT - 要求匯出資料\n• PRIVACY - 再次查看此訊息"
+        },
+        "help_info": {
+            "en": "📖 *Available Commands*\n\n*Privacy & Data:*\n• PRIVACY - View privacy policy\n• DELETE - Delete all your data\n• EXPORT - Export your data\n\n*Chat:*\n• Just send any message to chat with the sisters!\n• They'll automatically respond based on your topic.\n\n💬 Questions? Contact: privacy@sisters-whatsapp.com",
+            "zh": "📖 *可用指令*\n\n*隱私與資料：*\n• PRIVACY - 查看隱私政策\n• DELETE - 刪除所有資料\n• EXPORT - 匯出資料\n\n*聊天：*\n• 直接發送任何訊息即可與姐妹們聊天！\n• 她們會根據話題自動回應。\n\n💬 有問題？聯繫：privacy@sisters-whatsapp.com"
         }
     }
 
@@ -406,6 +414,17 @@ Reply *DELETE* anytime to erase your data.""",
         return messages.get(language, messages.get("en", ""))
 
     @classmethod
+    def get_privacy_info(cls, phone_number: str, language: str = "en") -> str:
+        """Get privacy info message with region-specific policy URL."""
+        region = cls.detect_region(phone_number)
+        policy_url = cls.POLICY_URLS.get(region, cls.POLICY_URLS[Region.DEFAULT])
+
+        messages = cls.RESPONSE_MESSAGES.get("privacy_info", {})
+        message = messages.get(language, messages.get("en", ""))
+
+        return message.format(policy_url=policy_url)
+
+    @classmethod
     def is_consent_command(cls, message: str) -> Optional[str]:
         """Check if message is a consent command."""
         msg_upper = message.strip().upper()
@@ -418,5 +437,9 @@ Reply *DELETE* anytime to erase your data.""",
             return "delete"
         elif msg_upper in ["EXPORT", "匯出", "导出"]:
             return "export"
+        elif msg_upper in ["PRIVACY", "隱私", "隐私", "POLICY", "政策"]:
+            return "privacy"
+        elif msg_upper in ["HELP", "幫助", "帮助", "?"]:
+            return "help"
 
         return None

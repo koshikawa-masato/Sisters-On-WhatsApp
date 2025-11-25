@@ -25,7 +25,7 @@ from ..utils.language_detector import detect_language, get_language_instruction
 from ..utils.admin_notifier import AdminNotifier
 from ..memory.conversation_learner import ConversationLearner
 from ..privacy.consent_manager import ConsentManager
-from ..privacy.policy_messages import PrivacyPolicyMessages
+from ..privacy.policy_messages import PrivacyPolicyMessages, Region
 from ..privacy.data_manager import DataManager
 
 # Validate configuration
@@ -151,6 +151,20 @@ async def whatsapp_webhook(
             response_msg = PrivacyPolicyMessages.get_response("data_exported", detected_language)
             twiml_response.message(response_msg)
             logger.info(f"Data export requested for {phone_number[:6]}...")
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        if consent_command == "privacy":
+            # Show privacy policy info with region-specific URL
+            response_msg = PrivacyPolicyMessages.get_privacy_info(phone_number, detected_language)
+            twiml_response.message(response_msg)
+            logger.info(f"Privacy info requested by {phone_number[:6]}...")
+            return Response(content=str(twiml_response), media_type="application/xml")
+
+        if consent_command == "help":
+            # Show available commands
+            response_msg = PrivacyPolicyMessages.get_response("help_info", detected_language)
+            twiml_response.message(response_msg)
+            logger.info(f"Help info requested by {phone_number[:6]}...")
             return Response(content=str(twiml_response), media_type="application/xml")
 
         # Step 0.5: Check consent status
@@ -356,9 +370,29 @@ async def whatsapp_webhook(
                 original_message=Body
             )
 
+        # Step 9.6: Check if user asked about privacy/data handling
+        privacy_keywords = [
+            "privacy", "隱私", "隐私", "data", "資料", "数据",
+            "personal information", "個人資訊", "个人信息",
+            "how do you use", "what do you collect", "my information",
+            "delete my", "erase my", "remove my",
+            "你們怎麼用", "收集什麼", "我的資料", "刪除我的"
+        ]
+        is_privacy_question = any(kw in Body.lower() for kw in privacy_keywords)
+
         # Step 10: Send response via Twilio (with character name and emoji)
         character_emoji = CHARACTER_EMOJIS.get(selected_character, '')
         formatted_response = f"*{selected_character.capitalize()}{character_emoji}*: {response_text}"
+
+        # Append privacy URL if user asked about privacy
+        if is_privacy_question:
+            region = PrivacyPolicyMessages.detect_region(phone_number)
+            policy_url = PrivacyPolicyMessages.POLICY_URLS.get(region, PrivacyPolicyMessages.POLICY_URLS[Region.DEFAULT])
+            if language == 'zh':
+                formatted_response += f"\n\n📋 完整隱私政策：{policy_url}"
+            else:
+                formatted_response += f"\n\n📋 Full privacy policy: {policy_url}"
+
         twiml_response.message(formatted_response)
 
     except Exception as e:
