@@ -111,6 +111,25 @@ User Message → Kimi API ❌ (timeout/error/500)
 
 ## Recent Updates
 
+### 🛡️ Security Hardening (2025-11-30)
+
+**Fixed: Encryption Double-Encoding Bug**
+- **Issue**: Encrypted conversation history was displayed to users instead of readable text
+- **Root Cause**: Fernet.encrypt() returns Base64-encoded bytes, but code was encoding again
+- **Impact**: LLM "mimicked" encrypted strings when receiving unreadable conversation history
+- **Solution**: Fixed encryption to avoid double-encoding, added legacy format detection
+
+**New: Prompt Injection Protection**
+- **Multilingual Detection**: Patterns for English, Chinese (Simplified/Traditional), Japanese
+- **Risk Levels**: Low, Medium, High based on threat severity
+- **Defense Prompt**: Added to system instructions to prevent manipulation
+- **Input Wrapping**: User messages wrapped with delimiters for LLM context isolation
+
+**New: Role-Based Corruption Handling**
+- **Assistant Responses**: Skip corrupted entries (prevents LLM mimicking encrypted text)
+- **User Inputs**: Preserve even if they look encrypted (could be intentional)
+- **Audit Logging**: All suspicious patterns logged for review
+
 ### 🔐 Privacy & Compliance System (2025-11-25)
 
 **New: Comprehensive Privacy Protection**
