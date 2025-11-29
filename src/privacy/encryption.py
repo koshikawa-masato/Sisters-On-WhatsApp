@@ -68,6 +68,37 @@ class ConversationEncryption:
         key = base64.urlsafe_b64encode(kdf.derive(key_source.encode()))
         return Fernet(key)
 
+    def _looks_like_fernet_token(self, text: str) -> bool:
+        """
+        Check if text looks like a Fernet token by examining its structure.
+
+        Fernet token structure:
+        - Version byte (0x80)
+        - 8 bytes timestamp
+        - 16 bytes IV
+        - Ciphertext (variable)
+        - 32 bytes HMAC
+
+        Minimum length: 1 + 8 + 16 + 16 + 32 = 73 bytes = ~100 base64 chars
+
+        Returns:
+            True if text appears to be a valid Fernet token
+        """
+        if not text or len(text) < 100:
+            return False
+
+        try:
+            # Try to decode as urlsafe base64
+            decoded = base64.urlsafe_b64decode(text.encode('utf-8'))
+
+            # Fernet tokens must start with version byte 0x80
+            if len(decoded) >= 1 and decoded[0] == 0x80:
+                return True
+
+            return False
+        except Exception:
+            return False
+
     def encrypt(self, plaintext: str) -> str:
         """
         Encrypt plaintext string.
@@ -102,26 +133,36 @@ class ConversationEncryption:
             ciphertext: Base64-encoded encrypted string
 
         Returns:
-            Decrypted plaintext
+            Decrypted plaintext, or None if data is corrupted
         """
         if not ciphertext:
             return ciphertext
 
         try:
+            result = None
+
             # Check if it's double-encoded (legacy format)
             # Double-encoded strings start with 'Z0FBQUFB' which decodes to 'gAAAAA'
             if ciphertext.startswith('Z0FBQUFB'):
                 # Legacy double-encoded: decode base64 first, then decrypt
                 encrypted = base64.urlsafe_b64decode(ciphertext.encode('utf-8'))
                 decrypted = self.fernet.decrypt(encrypted)
-                return decrypted.decode('utf-8')
+                result = decrypted.decode('utf-8')
             elif ciphertext.startswith('gAAAAA'):
                 # New single-encoded format: Fernet's native base64
                 decrypted = self.fernet.decrypt(ciphertext.encode('utf-8'))
-                return decrypted.decode('utf-8')
+                result = decrypted.decode('utf-8')
             else:
                 # Unknown format, return as-is (might be unencrypted)
                 return ciphertext
+
+            # Validate: decrypted result should not look like encrypted data
+            # Check if result is still a valid Fernet token (corrupted/double-encrypted)
+            if result and self._looks_like_fernet_token(result):
+                logger.warning(f"Corrupted data detected: decrypted result still appears encrypted")
+                return None
+
+            return result
         except Exception as e:
             logger.error(f"Decryption failed: {e}")
             # Return original if decryption fails (might be unencrypted legacy data)
