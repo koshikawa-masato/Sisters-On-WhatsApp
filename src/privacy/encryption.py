@@ -76,14 +76,16 @@ class ConversationEncryption:
             plaintext: The text to encrypt
 
         Returns:
-            Base64-encoded encrypted string
+            Base64-encoded encrypted string (Fernet's native format)
         """
         if not plaintext:
             return plaintext
 
         try:
+            # Fernet.encrypt() already returns urlsafe base64-encoded bytes
+            # No need for additional base64 encoding
             encrypted = self.fernet.encrypt(plaintext.encode('utf-8'))
-            return base64.urlsafe_b64encode(encrypted).decode('utf-8')
+            return encrypted.decode('utf-8')  # Just decode bytes to string
         except Exception as e:
             logger.error(f"Encryption failed: {e}")
             raise
@@ -91,6 +93,10 @@ class ConversationEncryption:
     def decrypt(self, ciphertext: str) -> str:
         """
         Decrypt ciphertext string.
+
+        Handles both:
+        - Legacy double-encoded format: Z0FBQUFB... (base64 of base64)
+        - New single-encoded format: gAAAAA... (Fernet's native base64)
 
         Args:
             ciphertext: Base64-encoded encrypted string
@@ -102,26 +108,47 @@ class ConversationEncryption:
             return ciphertext
 
         try:
-            encrypted = base64.urlsafe_b64decode(ciphertext.encode('utf-8'))
-            decrypted = self.fernet.decrypt(encrypted)
-            return decrypted.decode('utf-8')
+            # Check if it's double-encoded (legacy format)
+            # Double-encoded strings start with 'Z0FBQUFB' which decodes to 'gAAAAA'
+            if ciphertext.startswith('Z0FBQUFB'):
+                # Legacy double-encoded: decode base64 first, then decrypt
+                encrypted = base64.urlsafe_b64decode(ciphertext.encode('utf-8'))
+                decrypted = self.fernet.decrypt(encrypted)
+                return decrypted.decode('utf-8')
+            elif ciphertext.startswith('gAAAAA'):
+                # New single-encoded format: Fernet's native base64
+                decrypted = self.fernet.decrypt(ciphertext.encode('utf-8'))
+                return decrypted.decode('utf-8')
+            else:
+                # Unknown format, return as-is (might be unencrypted)
+                return ciphertext
         except Exception as e:
             logger.error(f"Decryption failed: {e}")
             # Return original if decryption fails (might be unencrypted legacy data)
             return ciphertext
 
     def is_encrypted(self, text: str) -> bool:
-        """Check if text appears to be encrypted."""
+        """
+        Check if text appears to be encrypted.
+
+        Detects both:
+        - Legacy double-encoded format: Z0FBQUFB... (base64 of base64)
+        - New single-encoded format: gAAAAA... (Fernet's native base64)
+        """
         if not text:
             return False
 
-        try:
-            # Try to decode as base64
-            decoded = base64.urlsafe_b64decode(text.encode('utf-8'))
-            # Fernet tokens start with specific bytes
-            return len(decoded) > 0 and decoded[0:1] == b'\x80'
-        except Exception:
-            return False
+        # Check for double-encoded format (legacy)
+        # 'Z0FBQUFB' is base64 encoding of 'gAAAAA' (Fernet token prefix)
+        if text.startswith('Z0FBQUFB'):
+            return True
+
+        # Check for single-encoded format (new/correct)
+        # Fernet tokens start with 'gAAAAA' (version byte 0x80 = 128)
+        if text.startswith('gAAAAA'):
+            return True
+
+        return False
 
     def encrypt_if_needed(self, text: str) -> str:
         """Encrypt text only if not already encrypted."""
