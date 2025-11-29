@@ -27,6 +27,7 @@ from ..memory.conversation_learner import ConversationLearner
 from ..privacy.consent_manager import ConsentManager
 from ..privacy.policy_messages import PrivacyPolicyMessages, Region
 from ..privacy.data_manager import DataManager
+from ..security.prompt_injection import PromptInjectionDetector
 
 # Validate configuration
 Config.validate()
@@ -74,6 +75,7 @@ topic_analyzer = TopicAnalyzer()
 session_manager = SessionManager()  # PostgreSQL persistent sessions enabled
 # session_manager = SimpleSession()  # In-memory sessions (testing only)
 moderator = OpenAIModerator()
+injection_detector = PromptInjectionDetector()
 conversation_learner = ConversationLearner()
 admin_notifier = AdminNotifier()
 consent_manager = ConsentManager()
@@ -273,33 +275,48 @@ async def whatsapp_webhook(
             session_manager.update_character(phone_number, selected_character)
             logger.info(f"Character switched: {current_character} -> {selected_character}")
 
-        # Step 5: Detect language
+        # Step 5: Detect prompt injection attempts
+        injection_result = injection_detector.detect(Body)
+        if injection_result.is_suspicious:
+            logger.warning(
+                f"Prompt injection detected from {phone_number}: "
+                f"risk={injection_result.risk_level}, patterns={injection_result.matched_patterns}"
+            )
+
+        # Step 6: Detect language
         language = detect_language(Body)
         language_instruction = get_language_instruction(language)
         logger.info(f"Detected language: {language}")
 
-        # Step 6: Load character personality with language instruction and verified knowledge
+        # Step 7: Load character personality with language instruction and verified knowledge
         system_prompt = character_loader.get_system_prompt(selected_character, user_message=Body)
         system_prompt += language_instruction
 
-        # Step 7: Get conversation history
+        # Add security defense prompt (always, to prevent injection)
+        system_prompt += injection_detector.get_defense_prompt()
+
+        # Step 8: Get conversation history
         history = session_manager.get_conversation_history(
             phone_number,
             character=selected_character,
             limit=Config.CONVERSATION_HISTORY_LIMIT
         )
 
-        # Step 8: Build messages for LLM
+        # Step 9: Build messages for LLM
         messages = [Message(role="system", content=system_prompt)]
 
-        # Add conversation history
+        # Add conversation history (wrap user messages for injection defense)
         for msg in history:
-            messages.append(Message(role=msg["role"], content=msg["content"]))
+            content = msg["content"]
+            if msg["role"] == "user":
+                content = injection_detector.wrap_user_input(content)
+            messages.append(Message(role=msg["role"], content=content))
 
-        # Add current user message
-        messages.append(Message(role="user", content=Body))
+        # Add current user message (wrapped for injection defense)
+        wrapped_body = injection_detector.wrap_user_input(Body)
+        messages.append(Message(role="user", content=wrapped_body))
 
-        # Step 9: Generate response (with automatic failover)
+        # Step 10: Generate response (with automatic failover)
         try:
             response_text = await llm_provider.generate(
                 messages,

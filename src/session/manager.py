@@ -176,14 +176,32 @@ class SessionManager:
             # Reverse to get chronological order
             messages.reverse()
 
-            # Decrypt content
+            # Decrypt content with role-based validation
             result = []
             for msg in messages:
                 content = msg.content
-                # Decrypt if encrypted (check if it looks like encrypted data)
+                decrypted = None
+
+                # Decrypt if encrypted
                 if self.encryption.is_encrypted(content):
-                    content = self.encryption.decrypt(content)
-                result.append({"role": msg.role, "content": content})
+                    decrypted = self.encryption.decrypt(content)
+                else:
+                    decrypted = content
+
+                # Role-based corrupted data handling:
+                # - assistant responses: skip if corrupted (None from decrypt)
+                # - user inputs: keep even if looks like encrypted (could be intentional)
+                if msg.role == "assistant" and decrypted is None:
+                    # Corrupted assistant response - skip to prevent LLM mimicking
+                    logger.warning(f"Skipping corrupted assistant response (id={msg.id})")
+                    continue
+
+                # For user inputs, if decrypt returned None, use original
+                # (user might have intentionally typed encrypted-looking text)
+                if decrypted is None:
+                    decrypted = content
+
+                result.append({"role": msg.role, "content": decrypted})
 
             return result
 
